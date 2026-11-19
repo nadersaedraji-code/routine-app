@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119085029';
+import { getState, update } from '../store.js?v=20261119102905';
 import {
   $,
   $$,
@@ -13,7 +13,7 @@ import {
   fmtDate,
   relativeDay,
   round1,
-} from '../ui.js?v=20261119085029';
+} from '../ui.js?v=20261119102905';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,14 +21,14 @@ import {
   shiftWeekKey,
   weekNumberForKey,
   programStartsIn,
-} from '../program.js?v=20261119085029';
-import { exerciseChart } from '../charts.js?v=20261119085029';
+} from '../program.js?v=20261119102905';
+import { exerciseChart } from '../charts.js?v=20261119102905';
 import {
   render as renderWeight,
   weightSummary,
   weightSparkline,
   formatWeight,
-} from './weight.js?v=20261119085029';
+} from './weight.js?v=20261119102905';
 
 const KINDS = {
   strength: { label: 'Strength', icon: 'dumbbell', cls: '' },
@@ -92,9 +92,9 @@ function logSummary(log, kind) {
     const parts = [];
     if (log.durationMin) parts.push(`${formatNum(log.durationMin)} min`);
     if (log.distanceKm) parts.push(`${formatNum(log.distanceKm)} km`);
-    return parts.join(' · ') || 'Cardio session';
+    return parts.join(' · ') || 'Cardio entry';
   }
-  return log.durationMin ? `${formatNum(log.durationMin)} min` : 'Hold session';
+  return log.durationMin ? `${formatNum(log.durationMin)} min` : 'Hold entry';
 }
 
 function paceOf(log) {
@@ -251,7 +251,7 @@ export function render(root, param) {
     <section class="poster poster-sport">
       <div class="poster-body">
         <div class="poster-kicker">
-          <span>04 / Workout log</span>
+          <span>03 / Exercise log</span>
         </div>
         <div class="poster-chips">
           <span class="glass-chip">${escapeHtml(weekLabel.range)}</span>
@@ -264,21 +264,21 @@ export function render(root, param) {
           }</span>
         </div>
         <h1 class="poster-title">Training</h1>
-        <p class="poster-sub">Log sets and track how your exercises change over time.</p>
+        <p class="poster-sub">Each exercise you log counts once, even when you do several in the same workout.</p>
         <div class="poster-actions">
           <button class="btn poster-btn" id="new-exercise">${icon('plus')} New exercise</button>
         </div>
       </div>
       <div class="poster-art sport-art">
         ${posterSpark(weeklyCounts)}
-        <div class="sport-art-caption">Sessions per week · last 8 weeks</div>
+        <div class="sport-art-caption">Exercises logged per week · last 8 weeks</div>
       </div>
       <div class="poster-stats">
         <div class="poster-stat"><b>${weekLogs.length}</b><span>${
-          preStart ? `Week ${weekNum}` : 'This week'
+          preStart ? `Exercises done · Week ${weekNum}` : 'Exercises done this week'
         }</span></div>
-        <div class="poster-stat"><b>${totalLogs}</b><span>Sessions</span></div>
-        <div class="poster-stat"><b>${exercises.length}</b><span>Exercises</span></div>
+        <div class="poster-stat"><b>${totalLogs}</b><span>Exercises done overall</span></div>
+        <div class="poster-stat"><b>${exercises.length}</b><span>Saved exercises</span></div>
         <div class="poster-stat"><b>${volumeLabel}<em> kg</em></b><span>Volume</span></div>
       </div>
     </section>
@@ -335,11 +335,11 @@ function renderExercises(container, exercises) {
             <div>
               <div class="exercise-name">${escapeHtml(displayName(exercise.name))}</div>
               <div class="exercise-meta">${
-                last ? `Last: ${escapeHtml(relativeDay(last.date))}` : 'No sessions yet'
+                 last ? `Last logged: ${escapeHtml(relativeDay(last.date))}` : 'Not logged yet'
               }</div>
             </div>
             <div class="exercise-last">
-              ${last ? `${icon('chart')}<span>${escapeHtml(logSummary(last, exercise.kind))}</span>` : `<span class="faint">Log your first session →</span>`}
+               ${last ? `${icon('chart')}<span>${escapeHtml(logSummary(last, exercise.kind))}</span>` : `<span class="faint">Log this exercise →</span>`}
             </div>
             ${spark}
           </button>`;
@@ -348,7 +348,7 @@ function renderExercises(container, exercises) {
       <button class="exercise-card add-tile" id="add-exercise-tile">
         <span class="add-tile-icon">${icon('plus')}</span>
         <span class="add-tile-title">Add an exercise</span>
-        <span class="add-tile-sub">Track a new lift, hold, or cardio session.</span>
+         <span class="add-tile-sub">Track a new lift, hold, or cardio exercise.</span>
       </button>
     </div>`;
   $$('[data-ex]', container).forEach((card) => {
@@ -442,22 +442,16 @@ function renderDetail(root, exerciseId) {
           <a class="poster-back" href="#/sport">${icon('left')} All exercises</a>
           <span class="poster-category">${escapeHtml(meta.label)}</span>
         </div>
-        <div class="poster-chips">
-          <span class="glass-chip">${logs.length} session${logs.length === 1 ? '' : 's'} logged</span>
-          <span class="glass-chip">${
-            last ? `Last session: ${escapeHtml(relativeDay(last.date))}` : 'No sessions yet'
-          }</span>
-        </div>
         <h1 class="poster-title">${escapeHtml(displayName(exercise.name))}</h1>
         <p class="poster-sub">${
           pr
             ? `${escapeHtml(pr.label)} · ${escapeHtml(pr.value)}${
                 pr.note ? ` · ${escapeHtml(pr.note)}` : ''
               }`
-            : 'Log your first session to set a benchmark.'
+            : 'Log this exercise to start tracking your progress.'
         }</p>
         <div class="poster-actions">
-          <button class="btn poster-btn" id="log-session">${icon('plus')} Log session</button>
+          <button class="btn poster-btn" id="log-exercise">${icon('plus')} Log exercise</button>
           <button class="icon-btn poster-icon-btn danger" id="delete-exercise" title="Delete exercise" aria-label="Delete exercise">${icon('trash')}</button>
         </div>
       </div>
@@ -468,10 +462,10 @@ function renderDetail(root, exerciseId) {
         <div class="detail-big-label">${pr ? escapeHtml(pr.label) : 'No benchmark yet'}</div>
       </div>
       <div class="poster-stats">
-        <div class="poster-stat"><b>${logs.length}</b><span>Sessions</span></div>
+        <div class="poster-stat"><b>${logs.length}</b><span>Times logged</span></div>
         <div class="poster-stat"><b class="stat-date">${
           last ? escapeHtml(fmtDate(last.date, 'short')) : '—'
-        }</b><span>Last session</span></div>
+         }</b><span>Last logged</span></div>
         <div class="poster-stat"><b class="tone-${
           progress && progress.delta > 0 ? 'green' : progress && progress.delta < 0 ? 'red' : ''
         }">${progress ? escapeHtml(progress.text) : '—'}</b><span>Progress</span></div>
@@ -482,22 +476,22 @@ function renderDetail(root, exerciseId) {
     <div class="card tint-train">
       <div class="card-head">
         <div class="card-title train">${icon('chart')} Exercise progress</div>
-        <span class="card-hint">${logs.length} session${logs.length === 1 ? '' : 's'}</span>
+        <span class="card-hint">${logs.length} ${logs.length === 1 ? 'entry' : 'entries'}</span>
       </div>
       ${
         logs.length
           ? `<div class="chart-wrap"><canvas id="exercise-chart"></canvas></div>`
           : emptyState({
               iconName: 'chart',
-              title: 'No sessions to chart yet',
-              text: 'Log your first session to start the chart.',
+              title: 'No entries to chart yet',
+              text: 'Log this exercise to start the chart.',
             })
       }
     </div>
 
     <div class="card">
       <div class="card-head">
-        <div class="card-title data">${icon('calendar')} Session history</div>
+        <div class="card-title data">${icon('calendar')} Exercise history</div>
         <span class="card-hint">Newest first</span>
       </div>
       ${
@@ -505,23 +499,23 @@ function renderDetail(root, exerciseId) {
           ? `<div class="list">${logs
               .slice()
               .reverse()
-              .map((log) => sessionHistoryItem(log, exercise.kind))
+              .map((log) => exerciseHistoryItem(log, exercise.kind))
               .join('')}</div>`
           : emptyState({
               iconName: 'note',
-              title: 'No sessions yet',
-              text: 'Use “Log session” to record your first set.',
+              title: 'No entries yet',
+              text: 'Use “Log exercise” to add your first entry.',
             })
       }
     </div>
   `;
 
-  $('#log-session').addEventListener('click', () => openLogSession(root, exercise));
+  $('#log-exercise').addEventListener('click', () => openLogExercise(root, exercise));
 
   $('#delete-exercise').addEventListener('click', async () => {
     const ok = await confirmDialog({
       title: 'Delete exercise?',
-      message: `“${displayName(exercise.name)}” and its ${logs.length} logged session${logs.length === 1 ? '' : 's'} will be permanently removed.`,
+      message: `“${displayName(exercise.name)}” and its ${logs.length} ${logs.length === 1 ? 'entry' : 'entries'} will be permanently removed.`,
       confirmText: 'Delete exercise',
     });
     if (!ok) return;
@@ -538,15 +532,15 @@ function renderDetail(root, exerciseId) {
       const log = getState().exerciseLogs.find((l) => l.id === btn.dataset.delLog);
       if (!log) return;
       const ok = await confirmDialog({
-        title: 'Delete this session?',
-        message: `The session from ${fmtDate(log.date, 'medium')} will be removed from your history.`,
-        confirmText: 'Delete session',
+        title: 'Delete this exercise entry?',
+        message: `The entry from ${fmtDate(log.date, 'medium')} will be removed from your history.`,
+        confirmText: 'Delete entry',
       });
       if (!ok) return;
       update((s) => {
         s.exerciseLogs = s.exerciseLogs.filter((l) => l.id !== log.id);
       });
-      toast('Session deleted');
+      toast('Entry deleted');
     });
   });
 
@@ -555,7 +549,7 @@ function renderDetail(root, exerciseId) {
   }
 }
 
-function sessionHistoryItem(log, kind) {
+function exerciseHistoryItem(log, kind) {
   let detail = '';
   if (kind === 'strength' || kind === 'bodyweight') {
     detail = (log.sets || [])
@@ -580,12 +574,12 @@ function sessionHistoryItem(log, kind) {
       ${log.note ? `<div class="list-sub" style="color:var(--text);opacity:.8">“${escapeHtml(log.note)}”</div>` : ''}
     </div>
     <div class="list-side">
-      <button class="icon-btn danger" data-del-log="${log.id}" aria-label="Delete session">${icon('trash')}</button>
+      <button class="icon-btn danger" data-del-log="${log.id}" aria-label="Delete entry">${icon('trash')}</button>
     </div>
   </div>`;
 }
 
-/* ---------------- log session modal ---------------- */
+/* ---------------- exercise log modal ---------------- */
 function setRowHtml(kind, values = {}) {
   const reps = values.reps != null ? escapeHtml(values.reps) : '';
   if (kind === 'bodyweight') {
@@ -604,7 +598,7 @@ function setRowHtml(kind, values = {}) {
   </div>`;
 }
 
-function openLogSession(root, exercise) {
+function openLogExercise(root, exercise) {
   const state = getState();
   const logs = logsFor(state, exercise.id);
   const previous = logs.length ? logs[logs.length - 1] : null;
@@ -666,7 +660,7 @@ function openLogSession(root, exercise) {
           previous ? '' : ''
         }</textarea>
       </div>`,
-    submitText: 'Save session',
+    submitText: 'Save entry',
     onMount: (backdrop) => {
       if (kind !== 'strength' && kind !== 'bodyweight') return;
       const editor = $('#sets', backdrop);
@@ -746,7 +740,7 @@ function openLogSession(root, exercise) {
       update((s) => {
         s.exerciseLogs.push(entry);
       });
-      toast('Session saved');
+      toast('Exercise logged');
     },
   });
 
@@ -799,7 +793,7 @@ function computePR(exercise, logs) {
     return {
       value: `${bestReps} reps`,
       label: 'Best set',
-      note: bestTotal ? `best session ${bestTotal} reps` : '',
+      note: bestTotal ? `Most reps in one entry: ${bestTotal}` : '',
     };
   }
 
@@ -819,7 +813,7 @@ function computePR(exercise, logs) {
       };
     }
     const maxMin = Math.max(...logs.map((l) => Number(l.durationMin) || 0));
-    return { value: `${formatNum(maxMin)} min`, label: 'Longest session', note: '' };
+    return { value: `${formatNum(maxMin)} min`, label: 'Longest duration', note: '' };
   }
 
   const best = Math.max(...logs.map((l) => Number(l.durationMin) || 0));
@@ -863,6 +857,6 @@ function computeProgress(exercise, logs) {
   return {
     delta,
     text: `${sign}${formatNum(delta)}${last.unit}`,
-    note: exercise.kind === 'strength' ? 'est. 1RM · vs first' : 'vs first session',
+    note: exercise.kind === 'strength' ? 'est. 1RM · vs first' : 'vs first entry',
   };
 }

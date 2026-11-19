@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119085029';
+import { getState, update } from '../store.js?v=20261119102905';
 import {
   $,
   $$,
@@ -12,8 +12,8 @@ import {
   parseISO,
   relativeDay,
   uid,
-} from '../ui.js?v=20261119085029';
-import { weightChart } from '../charts.js?v=20261119085029';
+} from '../ui.js?v=20261119102905';
+import { weightChart } from '../charts.js?v=20261119102905';
 
 export function formatWeight(value) {
   const number = Number(value);

@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119085029';
+import { getState, update } from '../store.js?v=20261119102905';
 import {
   $,
   $$,
@@ -12,15 +12,15 @@ import {
   fmtDate,
   relativeDay,
   parseISO,
-} from '../ui.js?v=20261119085029';
+} from '../ui.js?v=20261119102905';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekNumberForKey,
   shiftWeekKey,
   programStartsIn,
-} from '../program.js?v=20261119085029';
-import { mobilityChart } from '../charts.js?v=20261119085029';
+} from '../program.js?v=20261119102905';
+import { mobilityChart } from '../charts.js?v=20261119102905';
 
 const TRACKS = {
   stretch: {
@@ -221,7 +221,7 @@ export function render(root) {
     <section class="poster poster-stretch poster-duo">
       <div class="poster-body">
         <div class="poster-kicker">
-          <span>05 / Mobility &amp; stability</span>
+          <span>04 / Mobility &amp; stability</span>
         </div>
         <div class="poster-chips">
           <span class="glass-chip">Week ${weekNum}</span>

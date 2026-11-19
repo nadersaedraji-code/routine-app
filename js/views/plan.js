@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119085029';
+import { getState, update } from '../store.js?v=20261119102905';
 import {
   $,
   $$,
@@ -12,7 +12,7 @@ import {
   todayISO,
   fmtDate,
   parseISO,
-} from '../ui.js?v=20261119085029';
+} from '../ui.js?v=20261119102905';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,7 +21,7 @@ import {
   isFirstWeek,
   programStartKey,
   programStartsIn,
-} from '../program.js?v=20261119085029';
+} from '../program.js?v=20261119102905';
 
 let planWeek = null;
 
@@ -47,7 +47,7 @@ export function render(root) {
       <section class="poster poster-plan">
         <div class="poster-body">
           <div class="poster-kicker">
-            <span>03 / Schedule</span>
+            <span>02 / Schedule</span>
           </div>
           <div class="poster-chips">
             <span class="glass-chip">${escapeHtml(label.range)}</span>

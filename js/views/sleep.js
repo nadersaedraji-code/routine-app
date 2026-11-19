@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119085029';
+import { getState, update } from '../store.js?v=20261119102905';
 import {
   $,
   $$,
@@ -23,8 +23,8 @@ import {
   relativeDay,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261119085029';
-import { sleepChart } from '../charts.js?v=20261119085029';
+} from '../ui.js?v=20261119102905';
+import { sleepChart } from '../charts.js?v=20261119102905';
 
 function avgClock(entries, key) {
   const vals = entries
@@ -115,7 +115,7 @@ export function render(root) {
     <section class="poster poster-sleep">
       <div class="poster-body">
         <div class="poster-kicker">
-          <span>02 / Recovery</span>
+          <span>05 / Recovery</span>
         </div>
         <div class="poster-chips">
           <span class="glass-chip">Target ${escapeHtml(state.settings.bedTarget)}–${escapeHtml(state.settings.wakeTarget)}</span>

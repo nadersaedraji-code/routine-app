@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119085029';
+import { getState, update } from '../store.js?v=20261119102905';
 import {
   $,
   $$,
@@ -15,7 +15,7 @@ import {
   progressRing,
   activityRings,
   badge,
-} from '../ui.js?v=20261119085029';
+} from '../ui.js?v=20261119102905';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -23,7 +23,7 @@ import {
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from '../program.js?v=20261119085029';
+} from '../program.js?v=20261119102905';
 
 function greetingFor(hour) {
   if (hour < 12) return 'Good morning';
