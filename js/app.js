@@ -1,25 +1,25 @@
-import { api } from './api.js?v=20261119083558';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261119083558';
-import { initCharts, destroyCharts } from './charts.js?v=20261119083558';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261119083558';
+import { api } from './api.js?v=20261119085029';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261119085029';
+import { initCharts, destroyCharts } from './charts.js?v=20261119085029';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261119085029';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261119083558';
-import { render as renderToday } from './views/today.js?v=20261119083558';
-import { render as renderSleep } from './views/sleep.js?v=20261119083558';
-import { render as renderPlan } from './views/plan.js?v=20261119083558';
-import { render as renderSport } from './views/sport.js?v=20261119083558';
-import { render as renderStretch } from './views/stretch.js?v=20261119083558';
+} from './program.js?v=20261119085029';
+import { render as renderToday } from './views/today.js?v=20261119085029';
+import { render as renderSleep } from './views/sleep.js?v=20261119085029';
+import { render as renderPlan } from './views/plan.js?v=20261119085029';
+import { render as renderSport } from './views/sport.js?v=20261119085029';
+import { render as renderStretch } from './views/stretch.js?v=20261119085029';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
   { name: 'sleep', label: 'Sleep', icon: 'moon', href: '#/sleep', title: 'Sleep & wake' },
   { name: 'plan', label: 'Plan', icon: 'calendar', href: '#/plan', title: 'Weekly plan' },
-  { name: 'sport', label: 'Sport', icon: 'dumbbell', href: '#/sport', title: 'Training' },
+  { name: 'sport', label: 'Training', icon: 'dumbbell', href: '#/sport', title: 'Training' },
   { name: 'stretch', label: 'Stretch', icon: 'stretch', href: '#/stretch', title: 'Stretch & core' },
 ];
 
@@ -29,18 +29,6 @@ const VIEWS = {
   plan: renderPlan,
   sport: renderSport,
   stretch: renderStretch,
-};
-
-const MOTTOS = {
-  today: () => {
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-    return `${greeting}. Make today yours.`;
-  },
-  sleep: () => 'Rest is part of the training.',
-  plan: () => 'Design the week you want to live.',
-  sport: () => 'Progress, not perfection.',
-  stretch: () => 'Move well, move often.',
 };
 
 let lastRouteKey = null;
@@ -63,11 +51,11 @@ function buildShell() {
       <aside class="sidebar">
         <div class="brand">
           <div class="brand-mark">
-            <img src="./icons/icon-192.png?v=20261119083558" alt="" width="46" height="46" />
+            <img src="./icons/icon-192.png?v=20261119085029" alt="" width="46" height="46" />
           </div>
           <div>
             <div class="brand-name">Routine</div>
-            <div class="brand-sub">Train · Recover</div>
+            <div class="brand-sub">Personal tracker</div>
           </div>
         </div>
         <nav class="nav" aria-label="Main">
@@ -82,8 +70,7 @@ function buildShell() {
           <div class="side-program" id="side-program"></div>
           <button class="btn btn-secondary btn-sm" data-export>${icon('download')} Export data</button>
           <div class="sidebar-note">
-            <b>Cloud & private.</b> Your routine is protected by a key only
-            your devices hold.
+            Use the same connection key on each device to sync Routine.
           </div>
           <div class="sync-live" id="sync-live">
             <span class="sync-dot"></span><em>Cloud sync</em>
@@ -93,8 +80,8 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span>Routine <i>/</i> your daily practice</span>
-          <span id="masthead-note">Train. Recover. Repeat.</span>
+          <span class="masthead-brand"><i aria-hidden="true"></i> Routine</span>
+          <span id="masthead-note"></span>
         </header>
         <div class="view" id="view"></div>
       </main>
@@ -150,7 +137,7 @@ function updateSideProgram() {
         dayPlan.length ? dayPlan.map((s) => s.title).join(', ') : 'no sessions'
       }`;
       return `<span class="${cls}" title="${escapeHtml(title)}"><i></i><em>${escapeHtml(
-        fmtDate(date, 'day').slice(0, 1)
+        fmtDate(date, 'day').slice(0, 2)
       )}</em></span>`;
     })
     .join('');
@@ -193,7 +180,7 @@ function renderRoute() {
   const navItem = NAV.find((n) => n.name === name);
   document.title = `${navItem ? navItem.title : 'Routine'} · Routine`;
   const note = $('#masthead-note');
-  if (note && MOTTOS[name]) note.textContent = MOTTOS[name]();
+  if (note) note.textContent = fmtDate(todayISO(), 'medium');
 
   try {
     VIEWS[name](view, param);
@@ -329,7 +316,7 @@ function showCloudSetup(err) {
   boot.innerHTML = `
     <div class="cloud-setup">
       <div class="cloud-setup-emblem">
-        <img src="./icons/icon-192.png?v=20261119083558" alt="" width="84" height="84" />
+        <img src="./icons/icon-192.png?v=20261119085029" alt="" width="84" height="84" />
       </div>
       <div class="cloud-setup-kicker">Routine Cloud</div>
       <h1>Connect your routine.</h1>

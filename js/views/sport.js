@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119083558';
+import { getState, update } from '../store.js?v=20261119085029';
 import {
   $,
   $$,
@@ -13,7 +13,7 @@ import {
   fmtDate,
   relativeDay,
   round1,
-} from '../ui.js?v=20261119083558';
+} from '../ui.js?v=20261119085029';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,14 +21,14 @@ import {
   shiftWeekKey,
   weekNumberForKey,
   programStartsIn,
-} from '../program.js?v=20261119083558';
-import { exerciseChart } from '../charts.js?v=20261119083558';
+} from '../program.js?v=20261119085029';
+import { exerciseChart } from '../charts.js?v=20261119085029';
 import {
   render as renderWeight,
   weightSummary,
   weightSparkline,
   formatWeight,
-} from './weight.js?v=20261119083558';
+} from './weight.js?v=20261119085029';
 
 const KINDS = {
   strength: { label: 'Strength', icon: 'dumbbell', cls: '' },
@@ -159,38 +159,26 @@ function sparklineSvg(values, tone = '') {
 }
 
 function posterSpark(values) {
-  const w = 340;
-  const h = 126;
-  const pad = 8;
+  const w = 320;
+  const h = 118;
   const max = Math.max(...values, 1);
-  const pts = values.map((v, i) => [
-    pad + (i / Math.max(values.length - 1, 1)) * (w - pad * 2),
-    h - pad - (v / max) * (h - pad * 2),
-  ]);
-  const line = pts
-    .map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`)
-    .join(' ');
-  const last = pts[pts.length - 1];
-  const area = `${line} L${w - pad},${h - pad} L${pad},${h - pad} Z`;
-  const gid = uid('poster-spark');
+  const gid = uid('training-bars');
   return `<svg class="poster-spark" viewBox="0 0 ${w} ${h}" aria-hidden="true">
     <defs>
-      <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#ffffff" stop-opacity="0.26"></stop>
-        <stop offset="1" stop-color="#ffffff" stop-opacity="0"></stop>
+      <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="100%" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#f8d89c"></stop>
+        <stop offset="1" stop-color="#ba8e5a"></stop>
       </linearGradient>
     </defs>
-    <path d="${area}" fill="url(#${gid})"></path>
-    <path d="${line}" fill="none" stroke="#ffffff" stroke-opacity=".9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-    <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3" fill="#ffffff"></circle>
-    ${values
-      .map(
-        (v, i) =>
-          `<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(
-            1
-          )}" r="1.3" fill="#fff" fill-opacity=".4"/>`
-      )
-      .join('')}
+    ${[16, 43, 70, 97].map((y) => `<path d="M0 ${y}h320" stroke="#f8dec0" stroke-opacity=".22" stroke-dasharray="2 5"/>`).join('')}
+    ${values.map((value, i) => {
+      const x = 10 + i * 40;
+      const current = i === values.length - 1;
+      const height = (value / max) * 81;
+      return `<rect x="${x}" y="16" width="20" height="81" rx="5" fill="#f3dfc8" fill-opacity="${current ? '.17' : '.075'}"/>
+        ${value > 0 ? `<rect x="${x}" y="${97 - height}" width="20" height="${height}" rx="5" fill="${current ? `url(#${gid})` : '#dcb58a'}" opacity="${current ? 1 : .68}"/>` : ''}
+        <circle cx="${x + 10}" cy="109" r="${current ? 2.7 : 1.6}" fill="${current ? '#f8d89c' : '#e8caa2'}" opacity="${current ? 1 : .5}"/>`;
+    }).join('')}
   </svg>`;
 }
 
@@ -236,7 +224,7 @@ export function render(root, param) {
     <a class="card weight-teaser" href="#/sport/weight">
       <div class="weight-teaser-icon">${icon('scale')}</div>
       <div class="weight-teaser-copy">
-        <div class="weight-teaser-eyebrow">Body</div>
+        <div class="weight-teaser-eyebrow">Body metrics</div>
         <div class="weight-teaser-title">Body weight</div>
         <div class="weight-teaser-meta">${
           weight.current
@@ -244,7 +232,7 @@ export function render(root, param) {
               ? weight.reached
                 ? 'Goal reached'
                 : `${formatWeight(weight.toGo)} kg to goal`
-              : 'Set an objective'
+              : 'No target set'
             : 'Log your first weigh-in'
         }</div>
       </div>
@@ -263,8 +251,7 @@ export function render(root, param) {
     <section class="poster poster-sport">
       <div class="poster-body">
         <div class="poster-kicker">
-          <span>Progression</span>
-          <span class="poster-index">04</span>
+          <span>04 / Workout log</span>
         </div>
         <div class="poster-chips">
           <span class="glass-chip">${escapeHtml(weekLabel.range)}</span>
@@ -273,20 +260,18 @@ export function render(root, param) {
               ? startsIn === 1
                 ? 'Starts tomorrow'
                 : `Starts in ${startsIn} days`
-              : `${weekLogs.length} this week`
+               : `Week ${weekNum}`
           }</span>
         </div>
         <h1 class="poster-title">Training</h1>
-        <p class="poster-sub">${exercises.length} exercise${
-    exercises.length === 1 ? '' : 's'
-  } · ${totalLogs} session${totalLogs === 1 ? '' : 's'} logged</p>
+        <p class="poster-sub">Log sets and track how your exercises change over time.</p>
         <div class="poster-actions">
           <button class="btn poster-btn" id="new-exercise">${icon('plus')} New exercise</button>
         </div>
       </div>
       <div class="poster-art sport-art">
         ${posterSpark(weeklyCounts)}
-        <div class="sport-art-caption">Last 8 weeks</div>
+        <div class="sport-art-caption">Sessions per week · last 8 weeks</div>
       </div>
       <div class="poster-stats">
         <div class="poster-stat"><b>${weekLogs.length}</b><span>${
@@ -315,7 +300,7 @@ function renderExercises(container, exercises) {
       ${emptyState({
         iconName: 'dumbbell',
         title: 'Start your training log',
-        text: 'Create an exercise, then log your sets. You will see your progression build up session after session.',
+        text: 'Add an exercise to start logging your workouts.',
         action: `<button class="btn btn-primary" id="empty-new-exercise">${icon('plus')} Create your first exercise</button>`,
       })}
     </div>`;
@@ -325,8 +310,8 @@ function renderExercises(container, exercises) {
 
   container.innerHTML = `
     <div class="section-heading">
-      <h2>Your movements</h2>
-      <span>${exercises.length} exercise${exercises.length === 1 ? '' : 's'} in rotation</span>
+      <h2>Exercises</h2>
+      <span>${exercises.length} saved</span>
     </div>
     <div class="exercise-grid">
       ${exercises
@@ -362,7 +347,7 @@ function renderExercises(container, exercises) {
         .join('')}
       <button class="exercise-card add-tile" id="add-exercise-tile">
         <span class="add-tile-icon">${icon('plus')}</span>
-        <span class="add-tile-title">Add a movement</span>
+        <span class="add-tile-title">Add an exercise</span>
         <span class="add-tile-sub">Track a new lift, hold, or cardio session.</span>
       </button>
     </div>`;
@@ -455,12 +440,12 @@ function renderDetail(root, exerciseId) {
       <div class="poster-body">
         <div class="poster-kicker">
           <a class="poster-back" href="#/sport">${icon('left')} All exercises</a>
-          <span class="poster-index">${escapeHtml(meta.label)}</span>
+          <span class="poster-category">${escapeHtml(meta.label)}</span>
         </div>
         <div class="poster-chips">
           <span class="glass-chip">${logs.length} session${logs.length === 1 ? '' : 's'} logged</span>
           <span class="glass-chip">${
-            last ? `Last ${escapeHtml(relativeDay(last.date))}` : 'No sessions yet'
+            last ? `Last session: ${escapeHtml(relativeDay(last.date))}` : 'No sessions yet'
           }</span>
         </div>
         <h1 class="poster-title">${escapeHtml(displayName(exercise.name))}</h1>
@@ -496,7 +481,7 @@ function renderDetail(root, exerciseId) {
 
     <div class="card tint-train">
       <div class="card-head">
-        <div class="card-title train">${icon('chart')} Progression</div>
+        <div class="card-title train">${icon('chart')} Exercise progress</div>
         <span class="card-hint">${logs.length} session${logs.length === 1 ? '' : 's'}</span>
       </div>
       ${
@@ -504,8 +489,8 @@ function renderDetail(root, exerciseId) {
           ? `<div class="chart-wrap"><canvas id="exercise-chart"></canvas></div>`
           : emptyState({
               iconName: 'chart',
-              title: 'Your progress chart starts here',
-              text: 'Log two sessions and you will see the trend line build.',
+              title: 'No sessions to chart yet',
+              text: 'Log your first session to start the chart.',
             })
       }
     </div>

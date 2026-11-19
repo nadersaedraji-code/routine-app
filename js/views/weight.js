@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119083558';
+import { getState, update } from '../store.js?v=20261119085029';
 import {
   $,
   $$,
@@ -12,8 +12,8 @@ import {
   parseISO,
   relativeDay,
   uid,
-} from '../ui.js?v=20261119083558';
-import { weightChart } from '../charts.js?v=20261119083558';
+} from '../ui.js?v=20261119085029';
+import { weightChart } from '../charts.js?v=20261119085029';
 
 export function formatWeight(value) {
   const number = Number(value);
@@ -172,7 +172,7 @@ export function render(root) {
       <div class="poster-body">
         <div class="poster-kicker">
           <a class="poster-back" href="#/sport">${icon('left')} Training</a>
-          <span class="poster-index">Body journal</span>
+          <span class="poster-category">Weight log</span>
         </div>
         <h1 class="poster-title">Body <em>weight</em></h1>
         <p class="poster-sub">${escapeHtml(sub)}</p>
@@ -247,7 +247,7 @@ export function render(root) {
 
       <section class="card weight-panel weight-objective" id="weight-goal-card" aria-labelledby="weight-goal-title">
         <div class="weight-panel-head">
-          <div><span class="weight-kicker">03 / Goal</span><h2 id="weight-goal-title">Your objective</h2></div>
+          <div><span class="weight-kicker">03 / Goal</span><h2 id="weight-goal-title">Weight goal</h2></div>
           <span class="weight-panel-icon" aria-hidden="true">${icon('target')}</span>
         </div>
         <form id="goal-form">
@@ -262,13 +262,13 @@ export function render(root) {
             </div>
           </div>
           <div class="row wrap mt-4">
-            <button class="btn btn-primary" type="submit">${icon('target')} Save objective</button>
-            ${goal ? `<button class="btn btn-ghost" type="button" id="clear-goal">Clear</button>` : ''}
+            <button class="btn btn-primary" type="submit">${icon('target')} Save goal</button>
+            ${goal ? `<button class="btn btn-ghost" type="button" id="clear-goal">Clear goal</button>` : ''}
           </div>
         </form>
         ${goal ? `<div class="goal-progress">
           <div class="goal-progress-meta">
-            <span>${reached ? 'Objective reached' : current ? `${pct}% of the way` : 'Log a weigh-in to begin'}</span>
+            <span>${reached ? 'Goal reached' : current ? `${pct}% of the way` : 'Log a weigh-in to begin'}</span>
             ${current && !reached ? `<span>${formatWeight(toGo)} kg to go</span>` : ''}
           </div>
           <div class="bar-track" role="progressbar" aria-label="Weight goal progress" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><div class="bar-fill ${reached ? 'reached' : ''}" style="width:${pct}%"></div></div>
@@ -378,7 +378,7 @@ export function render(root) {
         s.settings.weightGoal = 0;
         s.settings.weightGoalDate = '';
       });
-      toast('Objective cleared');
+      toast('Goal cleared');
       return;
     }
     const value = Number(raw);
@@ -391,7 +391,7 @@ export function render(root) {
       s.settings.weightGoal = Number(value.toFixed(1));
       s.settings.weightGoalDate = goalDate || '';
     });
-    toast('Objective saved');
+    toast('Goal saved');
   });
 
   const clear = $('#clear-goal');
@@ -401,7 +401,7 @@ export function render(root) {
         s.settings.weightGoal = 0;
         s.settings.weightGoalDate = '';
       });
-      toast('Objective cleared');
+      toast('Goal cleared');
     });
   }
 

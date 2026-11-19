@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119083558';
+import { getState, update } from '../store.js?v=20261119085029';
 import {
   $,
   $$,
@@ -12,7 +12,7 @@ import {
   todayISO,
   fmtDate,
   parseISO,
-} from '../ui.js?v=20261119083558';
+} from '../ui.js?v=20261119085029';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,7 +21,7 @@ import {
   isFirstWeek,
   programStartKey,
   programStartsIn,
-} from '../program.js?v=20261119083558';
+} from '../program.js?v=20261119085029';
 
 let planWeek = null;
 
@@ -47,11 +47,9 @@ export function render(root) {
       <section class="poster poster-plan">
         <div class="poster-body">
           <div class="poster-kicker">
-            <span>Program</span>
-            <span class="poster-index">03</span>
+            <span>03 / Schedule</span>
           </div>
           <div class="poster-chips">
-            <span class="glass-chip">Week ${label.number}</span>
             <span class="glass-chip">${escapeHtml(label.range)}</span>
             ${
               preStart
@@ -64,10 +62,8 @@ export function render(root) {
           <h1 class="poster-title">Weekly plan</h1>
           <p class="poster-sub">${
             planned
-              ? `${done} of ${planned} sessions done${
-                  done === planned ? ' — week complete.' : `. ${planned - done} to go.`
-                }`
-              : 'No sessions planned yet. Build the week you want to live.'
+              ? `${done} of ${planned} ${planned === 1 ? 'session' : 'sessions'} complete.`
+              : 'No sessions planned for this week.'
           }</p>
           <div class="poster-actions">
             <button class="btn poster-btn" id="add-session">${icon('plus')} Add session</button>
@@ -78,7 +74,7 @@ export function render(root) {
                       preStart
                         ? startsIn === 1
                           ? 'Starts tomorrow'
-                          : `Starts in ${startsIn}d`
+                          : `Starts in ${startsIn} days`
                         : 'This week'
                     }</span>`
                   : `<button class="btn btn-ghost btn-sm" data-week-now>This week</button>`
@@ -92,14 +88,19 @@ export function render(root) {
             </div>
           </div>
         </div>
-        <div class="poster-art plan-art">
+         <div class="poster-art plan-art">
+           <svg class="plan-orbit" viewBox="0 0 180 150" aria-hidden="true">
+             <ellipse cx="90" cy="75" rx="70" ry="50" transform="rotate(-27 90 75)"/>
+             <ellipse cx="90" cy="75" rx="81" ry="57" transform="rotate(-27 90 75)" stroke-dasharray="1 5"/>
+             <circle cx="143" cy="35" r="2.6"/>
+           </svg>
           <div class="plan-big-week">${pad}</div>
           <div class="plan-big-label">week</div>
         </div>
         <div class="poster-stats">
-          <div class="poster-stat"><b>${done}</b><span>Sessions done</span></div>
+           <div class="poster-stat"><b>${done}</b><span>Completed</span></div>
           <div class="poster-stat"><b>${planned}</b><span>Planned</span></div>
-          <div class="poster-stat"><b>${Math.max(0, planned - done)}</b><span>To go</span></div>
+           <div class="poster-stat"><b>${Math.max(0, planned - done)}</b><span>Remaining</span></div>
           <div class="poster-stat"><b>${planned ? `${percent}%` : '—'}</b><span>Completion</span></div>
         </div>
         <div class="poster-progress">
@@ -120,7 +121,7 @@ export function render(root) {
               return `<div class="pw-day ${i === todayIndex ? 'today' : ''} ${
                 dayDone ? 'done' : ''
               } ${has ? 'has' : ''}" title="${escapeHtml(title)}"><span>${escapeHtml(
-                fmtDate(date, 'day').slice(0, 1)
+                 fmtDate(date, 'day')
               )}</span><i></i></div>`;
             })
             .join('')}

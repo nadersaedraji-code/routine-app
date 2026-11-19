@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119083558';
+import { getState, update } from '../store.js?v=20261119085029';
 import {
   $,
   $$,
@@ -15,7 +15,7 @@ import {
   progressRing,
   activityRings,
   badge,
-} from '../ui.js?v=20261119083558';
+} from '../ui.js?v=20261119085029';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -23,7 +23,7 @@ import {
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from '../program.js?v=20261119083558';
+} from '../program.js?v=20261119085029';
 
 function greetingFor(hour) {
   if (hour < 12) return 'Good morning';
@@ -60,6 +60,7 @@ export function render(root) {
   const weekSet = new Set(days);
   const stretchCount = state.stretchLogs.filter((l) => weekSet.has(l.date)).length;
   const stretchedToday = state.stretchLogs.some((l) => l.date === today);
+  const coreDoneToday = state.coreLogs?.some((l) => l.date === today);
 
   const sleep = state.sleepLogs[today];
   const hasSleep = !!(sleep && (sleep.wake || sleep.bed));
@@ -87,34 +88,26 @@ export function render(root) {
     <section class="poster poster-today">
       <div class="poster-body">
         <div class="poster-kicker">
-          <span>${escapeHtml(fmtDate(today, 'full'))}</span>
-          <span class="poster-index">01</span>
+          <span>01 / Overview</span>
         </div>
         <div class="poster-chips">
           <span class="glass-chip"><i class="live-dot"></i> ${
             preStart ? `Week ${weekNum} ${startCopy}` : `Week ${weekNum} · Day ${todayIndex + 1}`
           }</span>
-          <span class="glass-chip">${
-            preStart
-              ? 'New program'
-              : todaySessions.length
-              ? `${todaySessions.length} session${todaySessions.length === 1 ? '' : 's'} today`
-              : 'Recovery day'
-          }</span>
         </div>
-        <h1 class="poster-title">Find your<br><em>rhythm.</em></h1>
+        <h1 class="poster-title">Your day<em>.</em></h1>
         <p class="poster-sub">${
           preStart
-            ? `A clean slate. Week ${weekNum} begins ${
+            ? `Week ${weekNum} starts ${
                 startsIn === 1 ? 'tomorrow' : `in ${startsIn} days`
-              } — plan it, then live it.`
+              }. You can plan sessions and start logging now.`
             : todaySessions.length
-            ? `${todaySessions.length} session${todaySessions.length === 1 ? '' : 's'} planned today. Make it count.`
-            : 'Nothing planned today — recovery counts too.'
+            ? `${todaySessions.length} ${todaySessions.length === 1 ? 'session' : 'sessions'} planned today · ${doneToday} complete.`
+            : 'No sessions on your plan today.'
         }</p>
         <div class="poster-actions">
           <a class="btn poster-btn" href="#/sleep">${icon('moon')} ${hasSleep ? 'Sleep log' : 'Log sleep'}</a>
-          <a class="btn poster-btn-ghost" href="#/plan">${icon('calendar')} Plan week</a>
+          <a class="btn poster-btn-ghost" href="#/plan">${icon('calendar')} Weekly plan</a>
         </div>
       </div>
       <div class="poster-art daily-dial">
@@ -123,7 +116,7 @@ export function render(root) {
           exercise: todayPct,
           stand: stretchPct,
           centerText: `${consistency}%`,
-          label: 'weekly',
+           label: 'Progress',
            size: window.innerWidth < 640 ? 140 : 220,
         })}
         <div class="dial-caption"><span>Training</span><span>Today</span><span>Stretch</span></div>
@@ -152,14 +145,14 @@ export function render(root) {
             } ${has ? 'has' : ''} ${
               preStart && i === 0 ? 'upcoming' : ''
             }" title="${escapeHtml(title)}"><span>${escapeHtml(
-              fmtDate(date, 'day').slice(0, 1)
+               fmtDate(date, 'day')
              )}</span><b>${Number(date.slice(-2))}</b><i></i></div>`;
           })
           .join('')}
       </div>
     </section>
 
-    <div class="section-heading"><h2>Your rhythm</h2><span>Small actions. Lasting progress.</span></div>
+    <div class="section-heading"><h2>Daily check-in</h2></div>
     <div class="dash-grid">
       <div class="card sleep-card tint-sleep">
         <div class="card-ghost">${icon('moon')}</div>
@@ -183,8 +176,8 @@ export function render(root) {
                 <div class="sleep-metric">
                   <span>Sleep</span>
                   <b>${sleepMinutes != null ? fmtDuration(sleepMinutes) : '—'}</b>
-                  <em>goal ${escapeHtml(state.settings.wakeTarget)}–${escapeHtml(
-                    state.settings.bedTarget
+                   <em>Target ${escapeHtml(state.settings.bedTarget)}–${escapeHtml(
+                     state.settings.wakeTarget
                   )}</em>
                 </div>
               </div>
@@ -192,7 +185,7 @@ export function render(root) {
             : emptyState({
                 iconName: 'moon',
                 title: 'No sleep logged yet',
-                text: `Log last night to compare against your ${state.settings.wakeTarget} wake and ${state.settings.bedTarget} bed targets.`,
+                 text: 'Add your bedtime and wake time to see how long you slept.',
                 action: `<a class="btn btn-primary btn-sm" href="#/sleep">${icon('plus')} Log last night</a>`,
               })
         }
@@ -230,7 +223,7 @@ export function render(root) {
             : emptyState({
                 iconName: 'dumbbell',
                 title: 'No session planned today',
-                text: 'Recovery is part of the plan. Add a session if you want one.',
+                 text: 'Add a workout from the weekly plan.',
                 action: `<a class="btn btn-secondary btn-sm" href="#/plan">Open weekly plan</a>`,
               })
         }
@@ -239,8 +232,8 @@ export function render(root) {
       <div class="card today-stretch-card stretch-card tint-stretch">
         <div class="card-ghost">${icon('stretch')}</div>
         <div class="card-head">
-          <div class="card-title stretch">${icon('stretch')} Stretching</div>
-          <a class="btn btn-ghost btn-sm" href="#/stretch">Open</a>
+          <div class="card-title stretch">${icon('stretch')} Stretch &amp; core</div>
+          <a class="btn btn-ghost btn-sm" href="#/stretch">View log</a>
         </div>
         <div class="ring-row">
           ${progressRing({
@@ -252,7 +245,7 @@ export function render(root) {
           })}
           <div class="ring-copy grow">
             <div style="font-size:15px;font-weight:600">${
-              stretchedToday ? 'Done today ✓' : 'Mobility check-in'
+              stretchedToday ? 'Stretch logged' : 'Stretch not logged'
             }</div>
             <div class="small muted mt-2">${
               stretchCount >= stretchTarget
@@ -261,7 +254,8 @@ export function render(root) {
                     stretchTarget - stretchCount === 1 ? '' : 's'
                   } left this week.`
             }</div>
-          </div>
+             <div class="small muted mt-2">${coreDoneToday ? 'Core logged today.' : 'Core not logged today.'}</div>
+           </div>
           <button class="btn ${stretchedToday ? 'btn-green' : 'btn-primary'} btn-sm" id="today-stretch">
             ${icon(stretchedToday ? 'check' : 'stretch')} ${
               stretchedToday ? 'Stretched' : 'I stretched'

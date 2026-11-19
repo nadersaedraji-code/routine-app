@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119083558';
+import { getState, update } from '../store.js?v=20261119085029';
 import {
   $,
   $$,
@@ -23,8 +23,8 @@ import {
   relativeDay,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261119083558';
-import { sleepChart } from '../charts.js?v=20261119083558';
+} from '../ui.js?v=20261119085029';
+import { sleepChart } from '../charts.js?v=20261119085029';
 
 function avgClock(entries, key) {
   const vals = entries
@@ -78,26 +78,28 @@ export function render(root) {
   const deltaText = (info) => {
     if (!info) return '—';
     if (info.abs < 1) return 'On time';
-    return `${info.diff > 0 ? '+' : ''}${Math.round(info.diff)}m`;
+    return `${info.diff > 0 ? '+' : ''}${Math.round(info.diff)} min`;
   };
   const moonId = `moon${Math.random().toString(36).slice(2, 7)}`;
   const moonSvg = `<svg class="moon-art" viewBox="0 0 200 200" aria-hidden="true">
     <defs>
       <radialGradient id="${moonId}g">
-        <stop stop-color="#5E5CE6" stop-opacity=".34"/>
-        <stop offset="1" stop-color="#5E5CE6" stop-opacity="0"/>
+         <stop stop-color="#9bafc9" stop-opacity=".26"/>
+         <stop offset="1" stop-color="#7e9dbe" stop-opacity="0"/>
       </radialGradient>
       <linearGradient id="${moonId}m" x1="50" y1="55" x2="145" y2="155" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#64D2FF"/>
-        <stop offset=".5" stop-color="#0A84FF"/>
-        <stop offset="1" stop-color="#BF5AF2"/>
+         <stop stop-color="#d5e8ed"/>
+         <stop offset=".53" stop-color="#7996ad"/>
+         <stop offset="1" stop-color="#d5ba87"/>
       </linearGradient>
       <mask id="${moonId}k">
         <rect width="200" height="200" fill="#fff"/>
         <circle cx="120" cy="76" r="42" fill="#000"/>
       </mask>
     </defs>
-    <circle cx="100" cy="100" r="84" fill="url(#${moonId}g)"/>
+     <circle cx="100" cy="100" r="94" fill="url(#${moonId}g)"/>
+     <ellipse cx="100" cy="100" rx="83" ry="59" transform="rotate(-34 100 100)" fill="none" stroke="#cadfe4" stroke-opacity=".27"/>
+     <ellipse cx="100" cy="100" rx="92" ry="65" transform="rotate(-34 100 100)" fill="none" stroke="#cadfe4" stroke-opacity=".2" stroke-dasharray="1 4"/>
     <circle cx="94" cy="104" r="48" fill="url(#${moonId}m)" mask="url(#${moonId}k)" opacity=".92"/>
     <circle cx="154" cy="54" r="2.4" fill="#fff" opacity=".7"/>
     <circle cx="168" cy="86" r="1.5" fill="#64D2FF" opacity=".6"/>
@@ -113,23 +115,19 @@ export function render(root) {
     <section class="poster poster-sleep">
       <div class="poster-body">
         <div class="poster-kicker">
-          <span>Recovery · ${escapeHtml(fmtDate(today, 'full'))}</span>
-          <span class="poster-index">02</span>
+          <span>02 / Recovery</span>
         </div>
         <div class="poster-chips">
-          <span class="glass-chip">Goal ${state.settings.wakeTarget} → ${state.settings.bedTarget}</span>
-          <span class="glass-chip">${entries7.length} night${entries7.length === 1 ? '' : 's'} / 7d</span>
+          <span class="glass-chip">Target ${escapeHtml(state.settings.bedTarget)}–${escapeHtml(state.settings.wakeTarget)}</span>
         </div>
         <h1 class="poster-title">Sleep</h1>
         <p class="poster-sub">${
           todaySleepMinutes != null
-            ? `${escapeHtml(todayLog.bed)} → ${escapeHtml(todayLog.wake)} · ${entries30.length} night${
-                entries30.length === 1 ? '' : 's'
-              } in your history`
-            : 'No night logged yet. Start with last night.'
+            ? `Last night: ${escapeHtml(todayLog.bed)} to ${escapeHtml(todayLog.wake)}.`
+            : 'Record when you went to bed and woke up to see your sleep patterns.'
         }</p>
         <div class="poster-actions">
-          <button class="btn poster-btn" id="sleep-jump">${icon('plus')} Log night</button>
+          <button class="btn poster-btn" id="sleep-jump">${icon('plus')} ${todaySleepMinutes == null ? 'Log sleep' : 'Edit last night'}</button>
         </div>
       </div>
       <div class="poster-art sleep-art">
@@ -138,33 +136,33 @@ export function render(root) {
           todaySleepMinutes != null
             ? `<div class="sleep-duration">${fmtDuration(todaySleepMinutes)}</div>
                <div class="sleep-duration-label">last night</div>`
-            : `<div class="sleep-duration-label">no night yet</div>`
+            : `<div class="sleep-duration-label">No sleep logged today</div>`
         }
       </div>
       <div class="poster-stats">
-        <div class="poster-stat"><b>${wakeAvg != null ? minToTime(wakeAvg) : '—'}</b><span>Avg wake · 7d</span></div>
-        <div class="poster-stat"><b>${bedAvg != null ? minToTime(bedAvg) : '—'}</b><span>Avg bed · 7d</span></div>
+        <div class="poster-stat"><b>${wakeAvg != null ? minToTime(wakeAvg) : '—'}</b><span>Average wake time</span></div>
+        <div class="poster-stat"><b>${bedAvg != null ? minToTime(bedAvg) : '—'}</b><span>Average bedtime</span></div>
         <div class="poster-stat"><b class="tone-${wakeGoal ? wakeGoal.tone : ''}">${deltaText(
     wakeGoal
-  )}</b><span>vs wake goal</span></div>
+  )}</b><span>From wake target</span></div>
         <div class="poster-stat"><b class="tone-${bedGoal ? bedGoal.tone : ''}">${deltaText(
     bedGoal
-  )}</b><span>vs bed goal</span></div>
+  )}</b><span>From bedtime target</span></div>
       </div>
     </section>
 
     <div class="card tint-sleep ${entries30.length ? '' : 'chart-card is-empty'}">
       <div class="card-head">
-        <div class="card-title sleep">${icon('chart')} Last 30 nights</div>
-        <span class="card-hint">Dashed lines = goals</span>
+        <div class="card-title sleep">${icon('chart')} Sleep pattern</div>
+        <span class="card-hint">Last 30 nights</span>
       </div>
       ${
         entries30.length
-          ? `<div class="chart-wrap"><canvas id="sleep-chart"></canvas></div>`
+          ? `<div class="chart-wrap"><canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times over the last 30 nights. Dashed lines show your targets."></canvas></div>`
           : emptyState({
               iconName: 'moon',
               title: 'No nights logged yet',
-              text: 'Log tonight and your sleep trend will appear here.',
+              text: 'Your bedtime and wake time will appear here after your first entry.',
             })
       }
     </div>
@@ -172,12 +170,12 @@ export function render(root) {
     <div class="grid-2">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">${icon('sunrise')} Log a night</div>
+          <div class="card-title">${icon('sunrise')} Log sleep</div>
         </div>
         <form id="sleep-form">
           <div class="form-grid">
             <div class="field">
-              <label for="sleep-date">Date (wake-up day)</label>
+              <label for="sleep-date">Date you woke up</label>
               <input class="input" type="date" id="sleep-date" name="date" value="${today}" required />
             </div>
             <div class="field">
@@ -199,9 +197,9 @@ export function render(root) {
               todayLog.note || ''
             )}</textarea>
           </div>
-          <div class="row mt-4">
-            <button class="btn btn-primary" type="submit">${icon('check')} Save night</button>
-            <span class="tiny faint">Editing an existing date overwrites it.</span>
+          <div class="row wrap mt-4">
+            <button class="btn btn-primary" type="submit">${icon('check')} Save sleep log</button>
+            <span class="form-note">One entry per date.</span>
           </div>
         </form>
       </div>
@@ -222,14 +220,13 @@ export function render(root) {
           </div>
         </div>
         <p class="tiny faint mt-3" style="line-height:1.6">
-          Consistency beats perfection: staying within 15 minutes of your target
-          shows green in your history.
+          Your averages use the last 7 nights. History shows how far each time was from its target.
         </p>
         <div class="divider"></div>
         <div class="row wrap">
-          ${badge('≤15 min green', 'green')}
-          ${badge('≤45 min amber', 'amber')}
-          ${badge('else red', 'red')}
+          ${badge('Within 15 min', 'green')}
+          ${badge('16–45 min away', 'amber')}
+          ${badge('Over 45 min away', 'red')}
         </div>
       </div>
     </div>

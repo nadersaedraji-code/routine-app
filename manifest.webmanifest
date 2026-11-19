@@ -1,7 +1,7 @@
 {
-  "name": "Routine — Train. Recover. Repeat.",
+  "name": "Routine",
   "short_name": "Routine",
-  "description": "Sleep, training, weekly planning and stretching — one routine.",
+  "description": "Track sleep, workouts, body weight, stretching and core in Routine.",
   "start_url": "./#/today",
   "scope": "./",
   "display": "standalone",

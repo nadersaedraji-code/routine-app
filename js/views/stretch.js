@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119083558';
+import { getState, update } from '../store.js?v=20261119085029';
 import {
   $,
   $$,
@@ -12,15 +12,15 @@ import {
   fmtDate,
   relativeDay,
   parseISO,
-} from '../ui.js?v=20261119083558';
+} from '../ui.js?v=20261119085029';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekNumberForKey,
   shiftWeekKey,
   programStartsIn,
-} from '../program.js?v=20261119083558';
-import { mobilityChart } from '../charts.js?v=20261119083558';
+} from '../program.js?v=20261119085029';
+import { mobilityChart } from '../charts.js?v=20261119085029';
 
 const TRACKS = {
   stretch: {
@@ -210,24 +210,21 @@ export function render(root) {
   );
 
   const sub = preStart
-    ? `Your new week begins ${
+    ? `Your weekly targets begin ${
         startsIn === 1 ? 'tomorrow' : `in ${startsIn} days`
-      }. Today’s check-ins are saved; the weekly targets start fresh.`
+      }. You can still log a session today.`
     : bothComplete
-    ? 'Both tracks complete — beautifully balanced.'
-    : 'Mobility for length. Core for strength. Two tracks, one body.';
+    ? 'You’ve met both targets this week.'
+    : 'Log stretching and core separately, each with its own weekly target.';
 
   root.innerHTML = `
     <section class="poster poster-stretch poster-duo">
       <div class="poster-body">
         <div class="poster-kicker">
-          <span>Mobility</span>
-          <span class="poster-index">05</span>
+          <span>05 / Mobility &amp; stability</span>
         </div>
         <div class="poster-chips">
           <span class="glass-chip">Week ${weekNum}</span>
-          <span class="glass-chip"><i class="chip-dot stretch"></i>Stretch ${stretchDone}/${stretchTarget}</span>
-          <span class="glass-chip"><i class="chip-dot core"></i>Core ${coreDone}/${coreTarget}</span>
           ${
             preStart
               ? `<span class="glass-chip">${
@@ -241,11 +238,11 @@ export function render(root) {
         <div class="poster-actions">
           <button class="btn poster-btn ${stretchToday ? 'poster-btn-done' : ''}" data-track-today="stretch" aria-pressed="${stretchToday}">
             ${icon(stretchToday ? 'check' : 'stretch')}
-            ${stretchToday ? 'Stretched today' : 'Stretch today'}
+            ${stretchToday ? 'Stretch logged' : 'Log stretch'}
           </button>
           <button class="btn poster-btn-ghost poster-btn-core ${coreToday ? 'is-done' : ''}" data-track-today="core" aria-pressed="${coreToday}">
             ${icon(coreToday ? 'check' : 'target')}
-            ${coreToday ? 'Core done today' : 'Core today'}
+            ${coreToday ? 'Core logged' : 'Log core'}
           </button>
         </div>
       </div>
@@ -270,8 +267,7 @@ export function render(root) {
     </section>
 
     <div class="section-heading">
-      <h2>Today’s practice</h2>
-      <span>Two tracks. One routine.</span>
+      <h2>This week’s check-ins</h2>
     </div>
 
     <div class="track-grid">
@@ -281,16 +277,16 @@ export function render(root) {
 
     <div class="card tint-stretch ${totalAll ? '' : 'chart-card is-empty'}">
       <div class="card-head">
-        <div class="card-title stretch">${icon('chart')} Weekly rhythm</div>
-        <span class="card-hint">Stretch &amp; core · last 8 weeks</span>
+        <div class="card-title stretch">${icon('chart')} Sessions by week</div>
+        <span class="card-hint">Last 8 weeks</span>
       </div>
       ${
         totalAll
           ? `<div class="chart-wrap short"><canvas id="mobility-chart"></canvas></div>`
           : emptyState({
               iconName: 'chart',
-              title: 'Your weekly rhythm starts here',
-              text: 'Log a stretch or core session and this becomes a week-by-week record of both tracks.',
+              title: 'No sessions to chart yet',
+              text: 'Log a session to see how often you stretch or train core each week.',
             })
       }
     </div>
@@ -302,16 +298,16 @@ export function render(root) {
       </div>
       <div class="form-grid">
         <div class="field">
-          <label for="stretch-target">Stretch / week</label>
+          <label for="stretch-target">Stretch sessions per week</label>
           <input class="input" id="stretch-target" type="number" min="1" max="21" step="1" value="${stretchTarget}" />
         </div>
         <div class="field">
-          <label for="core-target">Core / week</label>
+          <label for="core-target">Core sessions per week</label>
           <input class="input" id="core-target" type="number" min="1" max="21" step="1" value="${coreTarget}" />
         </div>
       </div>
       <p class="tiny faint mt-3" style="line-height:1.6">
-        Each track has its own target. Changes apply to every week, including past history.
+        Changing a target also recalculates past streaks.
       </p>
     </div>
 
@@ -330,9 +326,7 @@ export function render(root) {
                     <div class="list-title">${escapeHtml(relativeDay(log.date))} <span class="track-pill ${
                   log.track
                 }">${meta.label}</span></div>
-                    <div class="list-sub">${
-                      log.note ? escapeHtml(log.note) : `<span class="faint">No note</span>`
-                    }</div>
+                    ${log.note ? `<div class="list-sub">${escapeHtml(log.note)}</div>` : ''}
                   </div>
                   <div class="list-side">
                     <button class="icon-btn" data-note-track="${log.track}" data-note-date="${

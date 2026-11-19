@@ -1155,3 +1155,152 @@ textarea.input { line-height: 1.55; }
 @media (max-width: 420px) {
   .weight-curve .weight-panel-head { flex-wrap: wrap; }
 }
+
+/* House style: engraved instruments, readable labels, quiet paper. */
+.daily-masthead {
+  align-items: center;
+  padding-bottom: 13px;
+  margin-bottom: 19px;
+  border-bottom: 1px solid #c8cfbf;
+  color: #3e584b;
+}
+.masthead-brand { display: inline-flex; align-items: center; gap: 9px; }
+.masthead-brand i {
+  width: 7px;
+  height: 7px;
+  margin: 0;
+  border-radius: 50%;
+  background: #9a743b;
+  box-shadow: 0 0 0 3px #c29e592e;
+}
+.daily-masthead > #masthead-note {
+  display: block;
+  font: 500 12px/1.25 var(--font);
+  color: #465b50;
+  white-space: nowrap;
+}
+.main .poster { min-width: 0; isolation: isolate; }
+.main .poster::after {
+  opacity: var(--orbit-opacity, .43);
+  z-index: 0;
+  background: url('../icons/orbit-field.svg?v=20261119085029') right center / cover no-repeat;
+}
+.poster-today { --orbit-opacity: 1; }
+.poster-sleep { --orbit-opacity: .28; }
+.poster-sport { --orbit-opacity: .36; }
+.poster-plan { --orbit-opacity: .46; }
+.poster-weight { --orbit-opacity: .5; }
+.poster-today {
+  --poster-bg: linear-gradient(120deg, #09231d, #102c24 40%, #193c2f);
+}
+.poster-sleep {
+  --poster-bg: radial-gradient(ellipse at 86% 40%, #334e60, transparent 56%), linear-gradient(130deg, #111f2b, #172c36);
+}
+.poster-plan {
+  --poster-bg: radial-gradient(ellipse at 90% 33%, #705c37, transparent 58%), linear-gradient(130deg, #272b20, #3b402d);
+}
+.poster-sport {
+  --poster-bg: radial-gradient(ellipse at 94% 42%, #623f34, transparent 65%), linear-gradient(130deg, #2e1d1c, #3b2623);
+}
+.poster-stretch {
+  --poster-bg: radial-gradient(ellipse at 93% 45%, #355c54, transparent 60%), linear-gradient(130deg, #132f2b, #1d4540);
+}
+.poster .poster-title { color: #fffaea; overflow-wrap: anywhere; }
+.poster-today .poster-title em { color: #e6c380; }
+.poster .poster-sub { line-height: 1.55; color: #ebeee5; }
+.poster-kicker { align-items: center; justify-content: flex-start; letter-spacing: .14em; }
+.poster-category {
+  color: #e5cf9c;
+  letter-spacing: .09em;
+  font-size: 10px;
+}
+.poster-kicker:has(.poster-back) { justify-content: space-between; }
+.poster-stats { border-color: #f5ebd332; }
+.poster-stat { min-width: 0; }
+.poster-stat span, .poster-progress-meta { color: #e1e6da; line-height: 1.3; }
+.poster-stat b { line-height: 1.12; }
+.poster-stat b em { color: #e4d7b9; }
+.poster .glass-chip { color: #f0eee5; }
+.poster-today .poster-actions { margin-top: 22px; }
+.poster-today .poster-title { margin-top: 16px; }
+.poster-today .poster-sub { margin-top: 12px; }
+.daily-dial {
+  background: radial-gradient(circle at 32% 25%, #3a6152, #12332a 52%, #0c251e 68%, #0c251e75 69%, #1e453958 70%);
+  box-shadow: 0 14px 48px #0005;
+}
+.daily-dial .ar-fill.ar-move { stroke: #e7c07e; }
+.daily-dial .ar-fill.ar-exercise { stroke: #8cd5ac; }
+.daily-dial .ar-fill.ar-stand { stroke: #a8ced0; }
+.poster .daily-dial .ar-track-move { stroke: #e7c07e45; }
+.poster .daily-dial .ar-track-exercise { stroke: #8cd5ac48; }
+.poster .daily-dial .ar-track-stand { stroke: #a8ced049; }
+.daily-dial .dial-caption { color: #e6eee6; }
+.daily-dial .dial-caption span:nth-child(1)::before { background: #e7c07e; }
+.daily-dial .dial-caption span:nth-child(2)::before { background: #8cd5ac; }
+.daily-dial .dial-caption span:nth-child(3)::before { background: #a8ced0; }
+.plan-art { min-height: 145px; width: 176px; isolation: isolate; }
+.plan-orbit { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; fill: none; stroke: #e8c88b75; }
+.plan-orbit circle { fill: #f1d397; stroke: none; }
+.plan-big-week { color: #fff2d5; }
+.sleep-duration { font-family: var(--serif); font-weight: 400; font-size: 35px; }
+.sleep-duration-label { color: #e1e9e7; letter-spacing: .08em; text-wrap: balance; }
+.sport-art-caption, .duo-legend { color: #e7dfcf; line-height: 1.4; }
+.card-head { flex-wrap: wrap; row-gap: 7px; }
+.card-head .card-title { flex: 1 1 auto; }
+.card-head .card-hint { color: #56675d; font-size: 11.5px; line-height: 1.35; }
+.form-grid > *, .form-grid .input { min-width: 0; max-width: 100%; }
+.form-note { color: #56675d; font-size: 12px; line-height: 1.45; }
+.list-sub, .empty-text, .check-name, .session-title, .session-comment {
+  overflow-wrap: anywhere;
+}
+.list-main, .list-item > .grow, .check-row > .grow { min-width: 0; }
+.tab span { font-weight: 600; }
+
+@media (max-width: 700px) {
+  .daily-masthead { padding-bottom: 10px; margin-bottom: 13px; }
+  .daily-masthead > #masthead-note { font-size: 11px; }
+  .main .poster::after { background-size: auto 100%; background-position: right center; }
+  .poster-kicker { margin-bottom: 11px; }
+  .poster-today .poster-title { font-size: clamp(48px, 13vw, 66px); }
+  .poster-today .poster-actions { margin-top: 16px; }
+  .poster-today .poster-kicker { margin-bottom: 13px; }
+  .poster-today .poster-stat span { font-size: 11px; }
+  .main :is(.poster-today, .poster-sleep, .poster-duo) .poster-art {
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin: 4px 0 9px;
+  }
+  .main :is(.poster-today, .poster-sleep, .poster-duo) .poster-stats {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 0;
+    padding-top: 13px;
+    border-top: 1px solid #f5ebd332;
+  }
+  .main .poster-today .daily-dial { margin-bottom: 15px; }
+  .plan-art { width: 118px; min-width: 118px; min-height: 105px; }
+  .plan-big-week { font-size: clamp(48px, 15vw, 68px); }
+  .sleep-duration { font-size: clamp(21px, 6vw, 29px); }
+  .sleep-duration-label { font-size: 8px; bottom: 10px; }
+  .poster-sport .sport-art { width: min(100%, 320px); }
+  .poster-sport .poster-stat span { font-size: 10px; }
+  .today-stretch-card .ring-row { flex-wrap: wrap; }
+  .today-stretch-card .ring-copy { flex-basis: 42%; }
+  .today-stretch-card #today-stretch { margin-inline-start: auto; }
+}
+@media (max-width: 420px) {
+  .card-head { column-gap: 8px; }
+  .card-head .card-title { font-size: 15px; }
+  .poster .poster-btn { padding-inline: 12px; }
+  .main :is(.poster-today, .poster-sleep, .poster-duo) .poster-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 380px) {
+  .poster-stats .poster-stat b { font-size: 17px; }
+  .poster-stats .poster-stat span { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-dial::before, .boot-spark { animation: none; }
+}

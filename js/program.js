@@ -3,8 +3,8 @@
  * 2026-11-19) and every week is a 7-day block from that day.
  * Week 1 = Nov 19–25, Week 2 = Nov 26–Dec 2, and so on.
  */
-import { getState } from './store.js?v=20261119083558';
-import { isoDate, parseISO, addDays } from './ui.js?v=20261119083558';
+import { getState } from './store.js?v=20261119085029';
+import { isoDate, parseISO, addDays } from './ui.js?v=20261119085029';
 
 export const DEFAULT_PROGRAM_START = '2026-11-19';
 
