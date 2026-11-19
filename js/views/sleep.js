@@ -1,0 +1,421 @@
+import { getState, update } from '../store.js?v=20261119082955';
+import {
+  $,
+  $$,
+  icon,
+  escapeHtml,
+  toast,
+  confirmDialog,
+  formModal,
+  emptyState,
+  badge,
+  progressRing,
+  todayISO,
+  isoDate,
+  addDays,
+  parseISO,
+  timeToMin,
+  minToTime,
+  clockToAxis,
+  axisToClock,
+  deltaInfo,
+  fmtDate,
+  relativeDay,
+  mean,
+  fmtDuration,
+} from '../ui.js?v=20261119082955';
+import { sleepChart } from '../charts.js?v=20261119082955';
+
+function avgClock(entries, key) {
+  const vals = entries
+    .map((e) => e[key])
+    .filter(Boolean)
+    .map((v) => timeToMin(v))
+    .filter((v) => v != null)
+    .map((v) => clockToAxis(v));
+  if (!vals.length) return null;
+  return axisToClock(mean(vals));
+}
+
+function lastNDates(n) {
+  return Array.from({ length: n }, (_, i) => isoDate(addDays(new Date(), -(n - 1 - i))));
+}
+
+function statDeltaHtml(actual, target) {
+  if (actual == null) {
+    return `<div class="stat-value">—</div><div class="stat-label">vs goal</div>`;
+  }
+  const info = deltaInfo(actual, target);
+  const sign = info.diff > 0 ? '+' : '';
+  const value = info.abs < 1 ? 'On time' : `${sign}${Math.round(info.diff)}m`;
+  return `<div class="stat-value" style="color:var(--${info.tone});font-size:22px">${value}</div>
+    <div class="stat-label">vs ${minToTime(target)} goal</div>`;
+}
+
+export function render(root) {
+  const state = getState();
+  const dates30 = lastNDates(30);
+  const entries7 = lastNDates(7)
+    .map((d) => (state.sleepLogs[d] ? { date: d, ...state.sleepLogs[d] } : null))
+    .filter(Boolean)
+    .filter((e) => e.wake || e.bed);
+  const entries30 = dates30
+    .map((d) => (state.sleepLogs[d] ? { date: d, ...state.sleepLogs[d] } : null))
+    .filter(Boolean)
+    .filter((e) => e.wake || e.bed);
+  const wakeAvg = avgClock(entries7, 'wake');
+  const bedAvg = avgClock(entries7, 'bed');
+  const wakeTarget = timeToMin(state.settings.wakeTarget) ?? 7 * 60;
+  const bedTarget = timeToMin(state.settings.bedTarget) ?? 23 * 60;
+  const today = todayISO();
+  const todayLog = state.sleepLogs[today] || {};
+  const todayWake = todayLog.wake ? timeToMin(todayLog.wake) : null;
+  const todayBed = todayLog.bed ? timeToMin(todayLog.bed) : null;
+  const todaySleepMinutes =
+    todayWake != null && todayBed != null ? (todayWake - todayBed + 1440) % 1440 : null;
+  const wakeGoal = wakeAvg != null ? deltaInfo(wakeAvg, wakeTarget) : null;
+  const bedGoal = bedAvg != null ? deltaInfo(bedAvg, bedTarget) : null;
+  const deltaText = (info) => {
+    if (!info) return '—';
+    if (info.abs < 1) return 'On time';
+    return `${info.diff > 0 ? '+' : ''}${Math.round(info.diff)}m`;
+  };
+  const moonId = `moon${Math.random().toString(36).slice(2, 7)}`;
+  const moonSvg = `<svg class="moon-art" viewBox="0 0 200 200" aria-hidden="true">
+    <defs>
+      <radialGradient id="${moonId}g">
+        <stop stop-color="#5E5CE6" stop-opacity=".34"/>
+        <stop offset="1" stop-color="#5E5CE6" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="${moonId}m" x1="50" y1="55" x2="145" y2="155" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#64D2FF"/>
+        <stop offset=".5" stop-color="#0A84FF"/>
+        <stop offset="1" stop-color="#BF5AF2"/>
+      </linearGradient>
+      <mask id="${moonId}k">
+        <rect width="200" height="200" fill="#fff"/>
+        <circle cx="120" cy="76" r="42" fill="#000"/>
+      </mask>
+    </defs>
+    <circle cx="100" cy="100" r="84" fill="url(#${moonId}g)"/>
+    <circle cx="94" cy="104" r="48" fill="url(#${moonId}m)" mask="url(#${moonId}k)" opacity=".92"/>
+    <circle cx="154" cy="54" r="2.4" fill="#fff" opacity=".7"/>
+    <circle cx="168" cy="86" r="1.5" fill="#64D2FF" opacity=".6"/>
+    <circle cx="44" cy="48" r="1.4" fill="#fff" opacity=".45"/>
+    <path d="M34 168c30-14 58-14 86 0s54 14 70 0" fill="none" stroke="#64D2FF" stroke-opacity=".28" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>`;
+
+  const sortedLogs = Object.keys(state.sleepLogs)
+    .filter((d) => state.sleepLogs[d] && (state.sleepLogs[d].wake || state.sleepLogs[d].bed))
+    .sort((a, b) => (a < b ? 1 : -1));
+
+  root.innerHTML = `
+    <section class="poster poster-sleep">
+      <div class="poster-body">
+        <div class="poster-kicker">
+          <span>Recovery · ${escapeHtml(fmtDate(today, 'full'))}</span>
+          <span class="poster-index">02</span>
+        </div>
+        <div class="poster-chips">
+          <span class="glass-chip">Goal ${state.settings.wakeTarget} → ${state.settings.bedTarget}</span>
+          <span class="glass-chip">${entries7.length} night${entries7.length === 1 ? '' : 's'} / 7d</span>
+        </div>
+        <h1 class="poster-title">Sleep</h1>
+        <p class="poster-sub">${
+          todaySleepMinutes != null
+            ? `${escapeHtml(todayLog.bed)} → ${escapeHtml(todayLog.wake)} · ${entries30.length} night${
+                entries30.length === 1 ? '' : 's'
+              } in your history`
+            : 'No night logged yet. Start with last night.'
+        }</p>
+        <div class="poster-actions">
+          <button class="btn poster-btn" id="sleep-jump">${icon('plus')} Log night</button>
+        </div>
+      </div>
+      <div class="poster-art sleep-art">
+        ${moonSvg}
+        ${
+          todaySleepMinutes != null
+            ? `<div class="sleep-duration">${fmtDuration(todaySleepMinutes)}</div>
+               <div class="sleep-duration-label">last night</div>`
+            : `<div class="sleep-duration-label">no night yet</div>`
+        }
+      </div>
+      <div class="poster-stats">
+        <div class="poster-stat"><b>${wakeAvg != null ? minToTime(wakeAvg) : '—'}</b><span>Avg wake · 7d</span></div>
+        <div class="poster-stat"><b>${bedAvg != null ? minToTime(bedAvg) : '—'}</b><span>Avg bed · 7d</span></div>
+        <div class="poster-stat"><b class="tone-${wakeGoal ? wakeGoal.tone : ''}">${deltaText(
+    wakeGoal
+  )}</b><span>vs wake goal</span></div>
+        <div class="poster-stat"><b class="tone-${bedGoal ? bedGoal.tone : ''}">${deltaText(
+    bedGoal
+  )}</b><span>vs bed goal</span></div>
+      </div>
+    </section>
+
+    <div class="card tint-sleep ${entries30.length ? '' : 'chart-card is-empty'}">
+      <div class="card-head">
+        <div class="card-title sleep">${icon('chart')} Last 30 nights</div>
+        <span class="card-hint">Dashed lines = goals</span>
+      </div>
+      ${
+        entries30.length
+          ? `<div class="chart-wrap"><canvas id="sleep-chart"></canvas></div>`
+          : emptyState({
+              iconName: 'moon',
+              title: 'No nights logged yet',
+              text: 'Log tonight and your sleep trend will appear here.',
+            })
+      }
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">${icon('sunrise')} Log a night</div>
+        </div>
+        <form id="sleep-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="sleep-date">Date (wake-up day)</label>
+              <input class="input" type="date" id="sleep-date" name="date" value="${today}" required />
+            </div>
+            <div class="field">
+              <label for="sleep-wake">Wake time</label>
+              <input class="input" type="time" id="sleep-wake" name="wake" value="${escapeHtml(
+                todayLog.wake || state.settings.wakeTarget
+              )}" required />
+            </div>
+            <div class="field">
+              <label for="sleep-bed">Bedtime</label>
+              <input class="input" type="time" id="sleep-bed" name="bed" value="${escapeHtml(
+                todayLog.bed || state.settings.bedTarget
+              )}" required />
+            </div>
+          </div>
+          <div class="field mt-3">
+            <label for="sleep-note">Note (optional)</label>
+            <textarea class="input" id="sleep-note" name="note" rows="2" placeholder="How did you sleep?">${escapeHtml(
+              todayLog.note || ''
+            )}</textarea>
+          </div>
+          <div class="row mt-4">
+            <button class="btn btn-primary" type="submit">${icon('check')} Save night</button>
+            <span class="tiny faint">Editing an existing date overwrites it.</span>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title sleep">${icon('target')} Your targets</div>
+          <span class="card-hint">Saved automatically</span>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="target-wake">Target wake-up</label>
+            <input class="input" type="time" id="target-wake" value="${escapeHtml(state.settings.wakeTarget)}" />
+          </div>
+          <div class="field">
+            <label for="target-bed">Target bedtime</label>
+            <input class="input" type="time" id="target-bed" value="${escapeHtml(state.settings.bedTarget)}" />
+          </div>
+        </div>
+        <p class="tiny faint mt-3" style="line-height:1.6">
+          Consistency beats perfection: staying within 15 minutes of your target
+          shows green in your history.
+        </p>
+        <div class="divider"></div>
+        <div class="row wrap">
+          ${badge('≤15 min green', 'green')}
+          ${badge('≤45 min amber', 'amber')}
+          ${badge('else red', 'red')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title data">${icon('calendar')} Sleep history</div>
+        <span class="card-hint">${sortedLogs.length} night${sortedLogs.length === 1 ? '' : 's'} logged</span>
+      </div>
+      ${
+        sortedLogs.length
+          ? `<div class="list">${sortedLogs
+              .map((date) => {
+                const log = state.sleepLogs[date];
+                const wake = timeToMin(log.wake);
+                const bed = timeToMin(log.bed);
+                const wd = wake != null ? deltaInfo(wake, wakeTarget) : null;
+                const bd = bed != null ? deltaInfo(bed, bedTarget) : null;
+                return `
+                <div class="list-item">
+                  <button class="grow" data-edit="${date}" style="background:none;border:0;padding:0;text-align:left;color:inherit;cursor:pointer">
+                    <div class="spread" style="justify-content:flex-start;gap:10px;flex-wrap:wrap">
+                      <div class="list-title">${escapeHtml(relativeDay(date))}</div>
+                      ${wd ? badge(wd.label, wd.tone) : ''}
+                      ${bd ? badge(`bed ${bd.label}`, bd.tone) : ''}
+                    </div>
+                    <div class="list-sub">
+                      ${log.wake ? `Up ${escapeHtml(log.wake)}` : 'No wake time'}
+                      · ${log.bed ? `Bed ${escapeHtml(log.bed)}` : 'No bedtime'}
+                      ${log.note ? ` · ${escapeHtml(log.note)}` : ''}
+                    </div>
+                  </button>
+                  <div class="list-side">
+                    <button class="icon-btn" data-edit="${date}" aria-label="Edit ${date}">${icon('pencil')}</button>
+                    <button class="icon-btn danger" data-delete="${date}" aria-label="Delete ${date}">${icon('trash')}</button>
+                  </div>
+                </div>`;
+              })
+              .join('')}</div>`
+          : emptyState({
+              iconName: 'calendar',
+              title: 'Nothing logged yet',
+              text: 'Your nights will be listed here, newest first.',
+            })
+      }
+    </div>
+  `;
+
+  /* sleep jump */
+  const sleepJump = $('#sleep-jump');
+  if (sleepJump) {
+    sleepJump.addEventListener('click', () => {
+      const formEl = $('#sleep-form');
+      if (!formEl) return;
+      const top = formEl.getBoundingClientRect().top + window.scrollY - 24;
+      window.scrollTo({ top, behavior: 'smooth' });
+    });
+  }
+
+  /* targets */
+  $('#target-wake').addEventListener('change', (e) => {
+    if (!e.target.value) return;
+    update((s) => {
+      s.settings.wakeTarget = e.target.value;
+    });
+    toast('Wake target updated');
+  });
+  $('#target-bed').addEventListener('change', (e) => {
+    if (!e.target.value) return;
+    update((s) => {
+      s.settings.bedTarget = e.target.value;
+    });
+    toast('Bedtime target updated');
+  });
+
+  /* log form */
+  const form = $('#sleep-form');
+  const dateInput = $('#sleep-date');
+  const wakeInput = $('#sleep-wake');
+  const bedInput = $('#sleep-bed');
+  const noteInput = $('#sleep-note');
+
+  dateInput.addEventListener('change', () => {
+    const log = getState().sleepLogs[dateInput.value];
+    wakeInput.value = (log && log.wake) || getState().settings.wakeTarget;
+    bedInput.value = (log && log.bed) || getState().settings.bedTarget;
+    noteInput.value = (log && log.note) || '';
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const date = dateInput.value;
+    const wake = wakeInput.value;
+    const bed = bedInput.value;
+    const note = noteInput.value.trim();
+    if (!date || !wake || !bed) return;
+    update((s) => {
+      s.sleepLogs[date] = { wake, bed, note };
+    });
+    toast('Night saved');
+  });
+
+  /* history actions */
+  $$('[data-delete]', root).forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const date = btn.dataset.delete;
+      const ok = await confirmDialog({
+        title: 'Delete this night?',
+        message: `The sleep log for ${fmtDate(date, 'medium')} will be removed.`,
+        confirmText: 'Delete night',
+      });
+      if (!ok) return;
+      update((s) => {
+        delete s.sleepLogs[date];
+      });
+      toast('Night deleted');
+    });
+  });
+
+  $$('[data-edit]', root).forEach((btn) => {
+    btn.addEventListener('click', () => openEditor(btn.dataset.edit));
+  });
+
+  if (entries30.length) {
+    sleepChart($('#sleep-chart'), {
+      dates: dates30,
+      wake: dates30.map((d) => {
+        const log = state.sleepLogs[d];
+        const t = log && log.wake ? timeToMin(log.wake) : null;
+        return t == null ? null : clockToAxis(t);
+      }),
+      bed: dates30.map((d) => {
+        const log = state.sleepLogs[d];
+        const t = log && log.bed ? timeToMin(log.bed) : null;
+        return t == null ? null : clockToAxis(t);
+      }),
+      wakeTarget: state.settings.wakeTarget,
+      bedTarget: state.settings.bedTarget,
+    });
+  }
+}
+
+function openEditor(date) {
+  const log = getState().sleepLogs[date] || { wake: '', bed: '', note: '' };
+  const { root, close } = formModal({
+    title: `Edit ${fmtDate(date, 'medium')}`,
+    body: `
+      <div class="form-grid">
+        <div class="field">
+          <label>Wake time</label>
+          <input class="input" type="time" name="wake" value="${escapeHtml(log.wake || '')}" required />
+        </div>
+        <div class="field">
+          <label>Bedtime</label>
+          <input class="input" type="time" name="bed" value="${escapeHtml(log.bed || '')}" required />
+        </div>
+      </div>
+      <div class="field">
+        <label>Note (optional)</label>
+        <textarea class="input" name="note" rows="2">${escapeHtml(log.note || '')}</textarea>
+      </div>`,
+    submitText: 'Save changes',
+    extraHtml: `<button type="button" class="btn btn-danger" data-del>${icon('trash')} Delete</button>`,
+    onSubmit: (data) => {
+      update((s) => {
+        s.sleepLogs[date] = {
+          wake: data.wake,
+          bed: data.bed,
+          note: (data.note || '').trim(),
+        };
+      });
+      toast('Night updated');
+    },
+  });
+
+  $(`[data-del]`, root).addEventListener('click', async () => {
+    const ok = await confirmDialog({
+      title: 'Delete this night?',
+      message: `The sleep log for ${fmtDate(date, 'medium')} will be removed.`,
+      confirmText: 'Delete night',
+    });
+    if (!ok) return;
+    close();
+    update((s) => {
+      delete s.sleepLogs[date];
+    });
+    toast('Night deleted');
+  });
+}
