@@ -1,5 +1,5 @@
 /* Routine — installable shell. Code only; user data lives in the cloud. */
-const VERSION = 'routine-20261119082955';
+const VERSION = 'routine-20261119083558';
 const CORE = [
   './',
   './index.html',
@@ -24,7 +24,7 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((key) => key !== VERSION).map((key) => caches.delete(key)))
+        Promise.all(keys.filter((key) => key.startsWith('routine-') && key !== VERSION).map((key) => caches.delete(key)))
       )
       .then(() => self.clients.claim())
   );
@@ -50,8 +50,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request, { cache: 'no-store' })
         .then((response) => {
-          const copy = response.clone();
-          caches.open(VERSION).then((cache) => cache.put('./index.html', copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(VERSION).then((cache) => cache.put('./index.html', copy));
+          }
           return response;
         })
         .catch(async () => {
@@ -64,14 +66,15 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.open(VERSION).then(async (cache) => {
-      const cached = await cache.match(request, { ignoreSearch: true });
+      const cached = await cache.match(request);
+      if (cached) return cached;
       const network = fetch(request)
         .then((response) => {
           if (response && response.ok) cache.put(request, response.clone());
           return response;
         })
         .catch(() => null);
-      return cached || (await network) || Response.error();
+      return (await network) || Response.error();
     })
   );
 });

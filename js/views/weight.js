@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119082955';
+import { getState, update } from '../store.js?v=20261119083558';
 import {
   $,
   $$,
@@ -9,10 +9,11 @@ import {
   emptyState,
   todayISO,
   fmtDate,
+  parseISO,
   relativeDay,
   uid,
-} from '../ui.js?v=20261119082955';
-import { weightChart } from '../charts.js?v=20261119082955';
+} from '../ui.js?v=20261119083558';
+import { weightChart } from '../charts.js?v=20261119083558';
 
 export function formatWeight(value) {
   const number = Number(value);
@@ -42,7 +43,7 @@ export function weightSummary(state) {
     ? Number(state.settings.weightGoal)
     : 0;
   const goalDate = (state.settings && state.settings.weightGoalDate) || '';
-  const delta = start && current ? current.weight - start.weight : null;
+  const delta = start && current ? Number((current.weight - start.weight).toFixed(1)) : null;
 
   let pct = 0;
   let toGo = null;
@@ -61,7 +62,7 @@ export function weightSummary(state) {
       reached = Math.abs(current.weight - goal) < 0.05;
       pct = reached ? 100 : 0;
     }
-    toGo = Math.abs(current.weight - goal);
+    toGo = reached ? 0 : Number(Math.abs(current.weight - goal).toFixed(1));
   }
 
   return {
@@ -120,6 +121,27 @@ export function weightSparkline(logs, goal = 0) {
   </svg>`;
 }
 
+function weightDial(current, goal, pct) {
+  const hasProgress = current && goal;
+  const track = 'M 23 139 A 96 96 0 0 1 215 139';
+  return `<div class="weight-dial">
+    <svg class="weight-dial-face" viewBox="0 0 238 153" aria-hidden="true">
+      ${Array.from({ length: 25 }, (_, i) => {
+        const angle = (i / 24) * Math.PI;
+        const point = (r) => `${(119 - r * Math.cos(angle)).toFixed(2)} ${(139 - r * Math.sin(angle)).toFixed(2)}`;
+        return `<path class="${i % 6 === 0 ? 'dial-tick-major' : ''}" d="M ${point(111)} L ${point(i % 6 === 0 ? 102 : 106)}"/>`;
+      }).join('')}
+      <path class="weight-dial-track" d="${track}"/>
+      ${hasProgress && pct > 0 ? `<path class="weight-dial-progress" d="${track}" pathLength="100" stroke-dasharray="${pct} 100"/>` : ''}
+    </svg>
+    <div class="weight-dial-readout">
+      <span class="weight-art-label">Latest weigh-in</span>
+      <div class="weight-current${current ? '' : ' weight-empty'}">${current ? `${formatWeight(current.weight)}<em>kg</em>` : '—'}</div>
+      <span class="weight-dial-caption">${hasProgress ? `${pct}% of the way to your goal` : current ? fmtDate(current.date, 'medium') : 'No weigh-ins yet'}</span>
+    </div>
+  </div>`;
+}
+
 export function render(root) {
   document.title = 'Body weight · Routine';
   const state = getState();
@@ -128,7 +150,7 @@ export function render(root) {
   const today = todayISO();
   const todayLog = state.weightLogs ? state.weightLogs[today] : null;
   const lastWeight = current ? current.weight : '';
-  const initialWeight = todayLog && todayLog.weight ? todayLog.weight : lastWeight;
+  const initialWeight = todayLog && todayLog.weight ? todayLog.weight : '';
   const initialNote = (todayLog && todayLog.note) || '';
   const goalDateValid = /^\d{4}-\d{2}-\d{2}$/.test(goalDate);
   const history = logs.slice().reverse();
@@ -136,49 +158,31 @@ export function render(root) {
   logs.forEach((log, index) => {
     previous.set(log.date, index === 0 ? null : log.weight - logs[index - 1].weight);
   });
-  const spark = weightSparkline(logs, goal);
-
-  const goalLine = goal
-    ? `${formatWeight(goal)} kg${goalDateValid ? ` by ${fmtDate(goalDate, 'short')}` : ''}`
-    : 'No objective yet';
-
   const sub = !current
-    ? 'Start with a baseline. Then the curve, the objective, the proof.'
+    ? 'Record your first weigh-in to start tracking change over time.'
     : reached
-    ? 'Objective reached — set the next horizon.'
+    ? 'You’ve reached your target weight.'
     : goal
-    ? `${formatWeight(current.weight)} kg now, ${formatWeight(toGo)} kg from your ${formatWeight(
-        goal
-      )} kg objective.`
-    : 'The curve is started. Give it a destination below.';
+    ? `You’re ${formatWeight(toGo)} kg from your ${formatWeight(goal)} kg target.`
+    : 'See how your weight changes over time, with or without a target.';
 
   root.innerHTML = `
+    <div class="weight-page">
     <section class="poster poster-weight">
       <div class="poster-body">
         <div class="poster-kicker">
           <a class="poster-back" href="#/sport">${icon('left')} Training</a>
-          <span class="poster-index">Body</span>
-        </div>
-        <div class="poster-chips">
-          <span class="glass-chip">${logs.length} weigh-in${logs.length === 1 ? '' : 's'}</span>
-          <span class="glass-chip">${escapeHtml(goalLine)}</span>
-          ${reached ? `<span class="glass-chip"><i class="live-dot"></i>Goal reached</span>` : ''}
+          <span class="poster-index">Body journal</span>
         </div>
         <h1 class="poster-title">Body <em>weight</em></h1>
         <p class="poster-sub">${escapeHtml(sub)}</p>
         <div class="poster-actions">
           <button class="btn poster-btn" id="weight-jump">${icon('plus')} Log weight</button>
+          <button class="btn poster-btn-ghost" id="goal-jump">${icon('target')} ${goal ? 'Edit goal' : 'Set a goal'}</button>
         </div>
       </div>
       <div class="poster-art weight-art">
-        ${
-          current
-            ? `<div class="weight-current">${formatWeight(current.weight)}<em>kg</em></div>
-               <div class="weight-art-label">current</div>
-               <div class="weight-spark">${spark}</div>`
-            : `<div class="weight-current weight-empty">—</div>
-               <div class="weight-art-label">no weigh-ins yet</div>`
-        }
+        ${weightDial(current, goal, pct)}
       </div>
       <div class="poster-stats">
         <div class="poster-stat"><b>${start ? `${formatWeight(start.weight)}<em> kg</em>` : '—'}</b><span>Starting weight</span></div>
@@ -190,27 +194,30 @@ export function render(root) {
       </div>
     </section>
 
-    <div class="card tint-body ${logs.length ? '' : 'chart-card is-empty'}">
-      <div class="card-head">
-        <div class="card-title data">${icon('chart')} Progression</div>
-        <span class="card-hint">${logs.length} weigh-in${logs.length === 1 ? '' : 's'}${goal ? ' · gold line = goal' : ''}</span>
+    <section class="card weight-panel weight-curve ${logs.length ? '' : 'chart-card is-empty'}" aria-labelledby="weight-curve-title">
+      <div class="weight-panel-head">
+        <div>
+          <span class="weight-kicker">01 / Trend</span>
+          <h2 id="weight-curve-title">Weight over time</h2>
+        </div>
+        ${logs.length ? `<div class="weight-legend"><span><i></i>Weigh-ins</span>${goal ? '<span><i class="goal"></i>Target</span>' : ''}</div>` : ''}
       </div>
       ${
         logs.length
-          ? `<div class="chart-wrap"><canvas id="weight-chart"></canvas></div>`
+          ? `<div class="chart-wrap"><canvas id="weight-chart" role="img" aria-label="Weight in kilograms over time. Individual readings are listed in Weigh-in history."></canvas></div>`
           : emptyState({
               iconName: 'scale',
               title: 'Your curve starts with one weigh-in',
               text: 'Log your weight and set an objective — the line and the target will grow from there.',
             })
       }
-    </div>
+    </section>
 
-    <div class="grid-2">
-      <div class="card" id="weight-form-card">
-        <div class="card-head">
-          <div class="card-title data">${icon('scale')} Log weight</div>
-          <span class="card-hint">kg</span>
+    <div class="weight-controls">
+      <section class="card weight-panel" id="weight-form-card" aria-labelledby="weight-form-title">
+        <div class="weight-panel-head">
+          <div><span class="weight-kicker">02 / Record</span><h2 id="weight-form-title">Log weight</h2></div>
+          <span class="weight-panel-icon" aria-hidden="true">${icon('scale')}</span>
         </div>
         <form id="weight-form">
           <div class="form-grid">
@@ -219,8 +226,8 @@ export function render(root) {
               <input class="input" id="weight-date" name="date" type="date" value="${today}" max="${today}" required />
             </div>
             <div class="field">
-              <label for="weight-value">Weight</label>
-              <input class="input" id="weight-value" name="weight" type="number" min="20" max="500" step="0.1" inputmode="decimal" placeholder="e.g. 78.4" value="${escapeHtml(
+              <label for="weight-value">Weight (kg)</label>
+              <input class="input" id="weight-value" name="weight" type="number" min="20" max="500" step="0.1" inputmode="decimal" placeholder="${lastWeight ? escapeHtml(lastWeight) : 'e.g. 78.4'}" value="${escapeHtml(
                 initialWeight
               )}" required />
             </div>
@@ -231,22 +238,22 @@ export function render(root) {
               initialNote
             )}</textarea>
           </div>
-          <div class="row mt-4">
+          <div class="row wrap mt-4">
             <button class="btn btn-primary" type="submit">${icon('check')} Save weigh-in</button>
-            <span class="tiny faint">Editing an existing date overwrites it.</span>
+            <span class="weight-form-hint">One weigh-in per day.</span>
           </div>
         </form>
-      </div>
+      </section>
 
-      <div class="card tint-body">
-        <div class="card-head">
-          <div class="card-title data">${icon('target')} Objective</div>
-          ${reached ? `<span class="badge green">Reached</span>` : `<span class="card-hint">${goal ? `${pct}% there` : 'Set a target'}</span>`}
+      <section class="card weight-panel weight-objective" id="weight-goal-card" aria-labelledby="weight-goal-title">
+        <div class="weight-panel-head">
+          <div><span class="weight-kicker">03 / Goal</span><h2 id="weight-goal-title">Your objective</h2></div>
+          <span class="weight-panel-icon" aria-hidden="true">${icon('target')}</span>
         </div>
         <form id="goal-form">
           <div class="form-grid">
             <div class="field">
-              <label for="weight-goal">Target weight</label>
+              <label for="weight-goal">Target weight (kg)</label>
               <input class="input" id="weight-goal" name="goal" type="number" min="20" max="500" step="0.1" inputmode="decimal" placeholder="e.g. 75" value="${goal ? escapeHtml(goal) : ''}" />
             </div>
             <div class="field">
@@ -259,14 +266,14 @@ export function render(root) {
             ${goal ? `<button class="btn btn-ghost" type="button" id="clear-goal">Clear</button>` : ''}
           </div>
         </form>
-        <div class="goal-progress">
+        ${goal ? `<div class="goal-progress">
           <div class="goal-progress-meta">
-            <span>${goal ? (reached ? 'Objective reached' : `${pct}% of the way`) : 'No objective set'}</span>
-            <span>${goal && current ? `${formatWeight(toGo)} kg to go` : goal ? 'Log a weigh-in to begin' : '—'}</span>
+            <span>${reached ? 'Objective reached' : current ? `${pct}% of the way` : 'Log a weigh-in to begin'}</span>
+            ${current && !reached ? `<span>${formatWeight(toGo)} kg to go</span>` : ''}
           </div>
-          <div class="bar-track"><div class="bar-fill ${reached ? 'reached' : ''}" style="width:${goal ? pct : 0}%"></div></div>
+          <div class="bar-track" role="progressbar" aria-label="Weight goal progress" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><div class="bar-fill ${reached ? 'reached' : ''}" style="width:${pct}%"></div></div>
         </div>
-        <p class="tiny faint mt-3" style="line-height:1.6">
+        <p class="weight-form-hint mt-3">
           ${
             start
               ? `Starting at ${formatWeight(start.weight)} kg.`
@@ -274,23 +281,24 @@ export function render(root) {
           }
           ${
             goalDateValid
-              ? ` Target date: ${fmtDate(goalDate, 'medium')}.`
+              ? ` Target date: ${parseISO(goalDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`
               : ''
           }
-        </p>
-      </div>
+        </p>` : '<p class="weight-form-hint mt-3">A target adds a gold reference line to your chart.</p>'}
+      </section>
     </div>
 
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title data">${icon('calendar')} History</div>
-        <span class="card-hint">${logs.length} weigh-in${logs.length === 1 ? '' : 's'}</span>
+    <section class="card weight-panel weight-history" aria-labelledby="weight-history-title">
+      <div class="weight-panel-head">
+        <div><span class="weight-kicker">04 / Journal</span><h2 id="weight-history-title">Weigh-in history</h2></div>
+        <span class="weight-form-hint">${logs.length} weigh-in${logs.length === 1 ? '' : 's'}</span>
       </div>
       ${
         history.length
           ? `<div class="list">${history
               .map((log) => {
-                const change = previous.get(log.date);
+                const diff = previous.get(log.date);
+                const change = diff === null ? null : Number(diff.toFixed(1));
                 return `<div class="list-item">
                   <div class="list-main">
                     <div class="row" style="gap:8px;flex-wrap:wrap">
@@ -303,7 +311,7 @@ export function render(root) {
                             )} kg</span>`
                       }
                     </div>
-                    <div class="list-sub">${log.note ? escapeHtml(log.note) : `<span class="faint">No note</span>`}</div>
+                    ${log.note ? `<div class="list-sub">${escapeHtml(log.note)}</div>` : ''}
                   </div>
                   <div class="list-side">
                     <div class="weight-history-value">${formatWeight(log.weight)}<small> kg</small></div>
@@ -319,14 +327,16 @@ export function render(root) {
               text: 'Your first weigh-in becomes the baseline. Add an objective above to give the curve a destination.',
             })
       }
+    </section>
     </div>
   `;
 
-  $('#weight-jump').addEventListener('click', () => {
-    const card = $('#weight-form-card');
-    if (!card) return;
-    window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 24, behavior: 'smooth' });
-  });
+  const jumpTo = (card, field) => {
+    $(card).scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    $(field).focus({ preventScroll: true });
+  };
+  $('#weight-jump').addEventListener('click', () => jumpTo('#weight-form-card', '#weight-value'));
+  $('#goal-jump').addEventListener('click', () => jumpTo('#weight-goal-card', '#weight-goal'));
 
   const dateInput = $('#weight-date');
   const weightInput = $('#weight-value');
@@ -334,7 +344,7 @@ export function render(root) {
 
   dateInput.addEventListener('change', () => {
     const log = getState().weightLogs ? getState().weightLogs[dateInput.value] : null;
-    weightInput.value = log && log.weight ? log.weight : lastWeight || '';
+    weightInput.value = log && log.weight ? log.weight : '';
     noteInput.value = (log && log.note) || '';
   });
 
@@ -402,10 +412,7 @@ export function render(root) {
       dateInput.value = btn.dataset.editWeight;
       weightInput.value = log.weight || '';
       noteInput.value = log.note || '';
-      const card = $('#weight-form-card');
-      if (card) {
-        window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 24, behavior: 'smooth' });
-      }
+      jumpTo('#weight-form-card', '#weight-value');
       toast('Editing this weigh-in');
     });
   });

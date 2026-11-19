@@ -8,7 +8,7 @@ import {
   timeToMin,
   fmtDate,
   round1,
-} from './ui.js?v=20261119082955';
+} from './ui.js?v=20261119083558';
 
 const FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -469,6 +469,10 @@ export function exerciseChart(canvas, { exercise, logs }) {
 
 /* ---------------- Body weight ---------------- */
 export function weightChart(canvas, { points, goal }) {
+  const dayMs = 86400000;
+  const dateAt = (day) => new Date(day * dayMs).toISOString().slice(0, 10);
+  const readings = points.map(({ date, weight }) => ({ x: Date.parse(date) / dayMs, y: weight }));
+  const dayPadding = Math.max(1, Math.round((readings.at(-1).x - readings[0].x) * .025));
   const values = points.map((point) => point.weight);
   const all = goal > 0 ? [...values, goal] : values;
   const low = Math.floor(Math.min(...all) - 1);
@@ -476,42 +480,56 @@ export function weightChart(canvas, { points, goal }) {
   const datasets = [
     {
       label: 'Weight',
-      data: values,
+      data: readings,
       borderColor: '#24675F',
       backgroundColor: areaFill(canvas, 'rgba(36,103,95,0.18)'),
       fill: true,
       borderWidth: 2.6,
-      pointRadius: 3,
+      pointRadius: (ctx) => ctx.dataIndex === points.length - 1 ? 5 : points.length > 60 ? 0 : 3,
       pointHoverRadius: 6,
       pointBackgroundColor: '#24675F',
       pointBorderColor: '#ffffff',
       pointBorderWidth: 1.5,
-      tension: 0.35,
+      cubicInterpolationMode: 'monotone',
     },
   ];
-  if (goal > 0) {
-    datasets.push({
-      label: 'Goal',
-      data: points.map(() => goal),
-      borderColor: '#C9A25E',
-      borderDash: [6, 5],
-      borderWidth: 1.6,
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      fill: false,
-      tension: 0,
-    });
-  }
   return mount(canvas, {
     type: 'line',
-    data: {
-      labels: points.map((point) => fmtDate(point.date, 'short')),
-      datasets,
-    },
+    data: { datasets },
+    plugins: [{
+      id: 'weightGoalLine',
+      afterDatasetsDraw({ ctx, scales, chartArea }) {
+        if (!(goal > 0)) return;
+        const y = scales.y.getPixelForValue(goal);
+        if (y < chartArea.top || y > chartArea.bottom) return;
+        ctx.save();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#a67a37';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+        ctx.restore();
+      },
+    }],
     options: {
       responsive: true,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false },
       scales: baseScales({
+        x: {
+          type: 'linear',
+          min: readings[0].x - dayPadding,
+          max: readings.at(-1).x + dayPadding,
+          ticks: {
+            color: '#596860',
+            precision: 0,
+            maxTicksLimit: 6,
+            maxRotation: 0,
+            padding: 9,
+            callback: (value) => readings.length === 1 && value !== readings[0].x ? '' : fmtDate(dateAt(value), 'short'),
+          },
+        },
         y: {
           suggestedMin: low,
           suggestedMax: high,
@@ -519,14 +537,17 @@ export function weightChart(canvas, { points, goal }) {
             precision: 1,
             padding: 8,
             maxTicksLimit: 6,
+            color: '#596860',
             font: { size: 10 },
             callback: (value) => `${value}`,
           },
         },
       }),
       plugins: {
+        legend: { display: false },
         tooltip: {
           callbacks: {
+            title: ([entry]) => fmtDate(dateAt(entry.parsed.x), 'full'),
             label: (ctx) =>
               `${ctx.dataset.label}: ${Number(ctx.parsed.y).toFixed(1)} kg`,
           },
