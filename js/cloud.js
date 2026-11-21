@@ -1,5 +1,5 @@
 /* ============================================================
-   Routine Cloud — GitHub Pages shell + Supabase sync.
+   Better — GitHub Pages shell + Supabase sync.
    One private space, one state document, one secret key.
    The publishable key is safe to ship; the space key is not.
    ============================================================ */
@@ -139,7 +139,7 @@ async function rpc(name, body) {
       body: JSON.stringify(body),
     });
   } catch (_) {
-    throw new CloudError('OFFLINE', 'Routine Cloud is unreachable. Check your connection.');
+    throw new CloudError('OFFLINE', 'Better is offline. Check your connection.');
   }
   const text = await res.text();
   let json = null;
@@ -154,7 +154,7 @@ async function rpc(name, body) {
       text.slice(0, 160) ||
       `Cloud request failed (${res.status})`;
     if (/invalid key/i.test(detail)) {
-      throw new CloudError('BAD_KEY', 'This connection key is not attached to a Routine space.');
+      throw new CloudError('BAD_KEY', 'This connection key is not attached to a Better space.');
     }
     throw new CloudError('CLOUD_ERROR', String(detail));
   }
@@ -169,7 +169,7 @@ function newestState(rows) {
 
 async function pull(since = '1970-01-01T00:00:00.000Z') {
   const key = getKey();
-  if (!validKey(key)) throw new CloudError('NEEDS_SETUP', 'Connect this device to Routine Cloud.');
+  if (!validKey(key)) throw new CloudError('NEEDS_SETUP', 'Connect this device to Better.');
   const data = await rpc('na_pull', { p_key: key, p_since: since });
   return { data, row: newestState(data.joy) };
 }
@@ -185,7 +185,7 @@ function withServerRev(state, row) {
 
 /** First load for this device: cloud wins, unless a local unsynced edit exists. */
 export async function loadInitial() {
-  if (!hasKey()) throw new CloudError('NEEDS_SETUP', 'Connect this device to Routine Cloud.');
+  if (!hasKey()) throw new CloudError('NEEDS_SETUP', 'Connect this device to Better.');
   // Do not replay a queued save from before the reset into the new shared state.
   for (const slot of LEGACY_SLOTS) write(slot, '');
   const local = cachedState();
@@ -226,7 +226,7 @@ export async function loadInitial() {
     return { ...local, rev: saved.rev };
   }
 
-  throw new CloudError('NO_DATA', 'No Routine data is stored under this key.');
+  throw new CloudError('NO_DATA', 'No Better data is stored under this key.');
 }
 
 /** Poll: returns only when the cloud has a newer state. */
@@ -245,7 +245,7 @@ export async function pullChanges() {
 
 /** Save the whole document as one private cloud record. */
 export async function pushState(state) {
-  if (!hasKey()) throw new CloudError('NEEDS_SETUP', 'Connect this device to Routine Cloud.');
+  if (!hasKey()) throw new CloudError('NEEDS_SETUP', 'Connect this device to Better.');
   const next = {
     ...state,
     rev: Number(state.rev) || 0,

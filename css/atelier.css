@@ -1165,14 +1165,20 @@ textarea.input { line-height: 1.55; }
   color: #3e584b;
 }
 .masthead-brand { display: inline-flex; align-items: center; gap: 9px; }
-.masthead-brand i {
-  width: 7px;
-  height: 7px;
-  margin: 0;
-  border-radius: 50%;
-  background: #9a743b;
-  box-shadow: 0 0 0 3px #c29e592e;
+.masthead-brand img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  box-shadow: 0 3px 6px #102d2928;
 }
+.daily-masthead .masthead-brand {
+  font: italic 500 21px/.95 var(--serif);
+  color: #193b2e;
+  letter-spacing: -.03em;
+  text-transform: none;
+}
+.brand-name { font-size: 34px; line-height: .95; }
 .daily-masthead > #masthead-note {
   display: block;
   font: 500 12px/1.25 var(--font);
@@ -1183,7 +1189,7 @@ textarea.input { line-height: 1.55; }
 .main .poster::after {
   opacity: var(--orbit-opacity, .43);
   z-index: 0;
-  background: url('../icons/orbit-field.svg?v=20261121230522') right center / cover no-repeat;
+  background: url('../icons/orbit-field.svg?v=20261121231025') right center / cover no-repeat;
 }
 .poster-today { --orbit-opacity: 1; }
 .poster-sleep { --orbit-opacity: .28; }

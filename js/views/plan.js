@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261121230522';
+import { getState, update } from '../store.js?v=20261121231025';
 import {
   $,
   $$,
@@ -12,7 +12,7 @@ import {
   todayISO,
   fmtDate,
   parseISO,
-} from '../ui.js?v=20261121230522';
+} from '../ui.js?v=20261121231025';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,7 +21,7 @@ import {
   isFirstWeek,
   programStartKey,
   programStartsIn,
-} from '../program.js?v=20261121230522';
+} from '../program.js?v=20261121231025';
 
 let planWeek = null;
 

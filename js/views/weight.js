@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261121230522';
+import { getState, update } from '../store.js?v=20261121231025';
 import {
   $,
   $$,
@@ -12,8 +12,8 @@ import {
   parseISO,
   relativeDay,
   uid,
-} from '../ui.js?v=20261121230522';
-import { weightChart } from '../charts.js?v=20261121230522';
+} from '../ui.js?v=20261121231025';
+import { weightChart } from '../charts.js?v=20261121231025';
 
 export function formatWeight(value) {
   const number = Number(value);
@@ -143,7 +143,7 @@ function weightDial(current, goal, pct) {
 }
 
 export function render(root) {
-  document.title = 'Body weight · Routine';
+  document.title = 'Body weight · Better';
   const state = getState();
   const summary = weightSummary(state);
   const { logs, start, current, goal, goalDate, delta, pct, toGo, reached } = summary;

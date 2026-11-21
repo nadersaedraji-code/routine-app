@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261121230522';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261121230522';
-import { initCharts, destroyCharts } from './charts.js?v=20261121230522';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261121230522';
+import { api } from './api.js?v=20261121231025';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261121231025';
+import { initCharts, destroyCharts } from './charts.js?v=20261121231025';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261121231025';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261121230522';
-import { render as renderToday } from './views/today.js?v=20261121230522';
-import { render as renderSleep } from './views/sleep.js?v=20261121230522';
-import { render as renderPlan } from './views/plan.js?v=20261121230522';
-import { render as renderSport } from './views/sport.js?v=20261121230522';
-import { render as renderStretch } from './views/stretch.js?v=20261121230522';
+} from './program.js?v=20261121231025';
+import { render as renderToday } from './views/today.js?v=20261121231025';
+import { render as renderSleep } from './views/sleep.js?v=20261121231025';
+import { render as renderPlan } from './views/plan.js?v=20261121231025';
+import { render as renderSport } from './views/sport.js?v=20261121231025';
+import { render as renderStretch } from './views/stretch.js?v=20261121231025';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -52,10 +52,10 @@ function buildShell() {
       <aside class="sidebar">
         <div class="brand">
           <div class="brand-mark">
-            <img src="./icons/icon-192.png?v=20261121230522" alt="" width="46" height="46" />
+            <img src="./icons/icon-192.png?v=20261121231025" alt="" width="46" height="46" />
           </div>
           <div>
-            <div class="brand-name">Routine</div>
+            <div class="brand-name">Better</div>
             <div class="brand-sub">Personal tracker</div>
           </div>
         </div>
@@ -71,7 +71,7 @@ function buildShell() {
           <div class="side-program" id="side-program"></div>
           <button class="btn btn-secondary btn-sm" data-export>${icon('download')} Export data</button>
           <div class="sidebar-note">
-            Use the same connection key on each device to sync Routine.
+            Use the same connection key on each device to sync Better.
           </div>
           <div class="sync-live" id="sync-live">
             <span class="sync-dot"></span><em>Cloud sync</em>
@@ -81,7 +81,7 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><i aria-hidden="true"></i> Routine</span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261121231025" alt="" width="24" height="24" /> Better</span>
           <span id="masthead-note"></span>
         </header>
         <div class="view" id="view"></div>
@@ -179,7 +179,7 @@ function renderRoute() {
   destroyCharts();
   updateNav(name);
   const navItem = NAV.find((n) => n.name === name);
-  document.title = `${navItem ? navItem.title : 'Routine'} · Routine`;
+  document.title = navItem ? `${navItem.title} · Better` : 'Better';
   const note = $('#masthead-note');
   renderedDate = todayISO();
   if (note) note.textContent = fmtDate(renderedDate, 'medium');
@@ -223,7 +223,7 @@ function exportState() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `routine-backup-${todayISO()}.json`;
+  link.download = `better-backup-${todayISO()}.json`;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -312,7 +312,7 @@ function showBootError(err) {
   boot.innerHTML = `
     <div class="boot-mark">!</div>
     <div class="boot-text" style="max-width:360px;text-align:center">
-      Routine Cloud could not be reached.<br /><span class="faint">${escapeHtml(
+      Better couldn’t connect.<br /><span class="faint">${escapeHtml(
         err.message || String(err)
       )}</span>
     </div>
@@ -326,10 +326,10 @@ function showCloudSetup(err) {
   boot.innerHTML = `
     <div class="cloud-setup">
       <div class="cloud-setup-emblem">
-        <img src="./icons/icon-192.png?v=20261121230522" alt="" width="84" height="84" />
+        <img src="./icons/icon-192.png?v=20261121231025" alt="" width="84" height="84" />
       </div>
-      <div class="cloud-setup-kicker">Routine Cloud</div>
-      <h1>Connect your routine.</h1>
+      <div class="cloud-setup-kicker">Private sync</div>
+      <h1>Connect to Better</h1>
       <p class="cloud-setup-copy">
         Paste the private key created for your space. Use the same key on your
         Mac and Android.
