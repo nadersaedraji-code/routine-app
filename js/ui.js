@@ -415,6 +415,16 @@ export function confirmDialog({ title = 'Are you sure?', message, confirmText = 
 }
 
 /* ---------------- small markup builders ---------------- */
+export function animateDash(ring, from) {
+  if (!ring?.animate || !Number.isFinite(from) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const to = Number(ring.getAttribute('stroke-dashoffset'));
+  if (Math.abs(to - from) < .05) return;
+  ring.animate(
+    [{ strokeDashoffset: `${from}px` }, { strokeDashoffset: `${to}px` }],
+    { duration: 640, easing: 'cubic-bezier(.18,.8,.22,1)' }
+  );
+}
+
 export function progressRing({
   value,
   max,

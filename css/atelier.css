@@ -1189,7 +1189,7 @@ textarea.input { line-height: 1.55; }
 .main .poster::after {
   opacity: var(--orbit-opacity, .43);
   z-index: 0;
-  background: url('../icons/orbit-field.svg?v=20261121231641') right center / cover no-repeat;
+  background: url('../icons/orbit-field.svg?v=20261121233742') right center / cover no-repeat;
 }
 .poster-today { --orbit-opacity: 1; }
 .poster-sleep { --orbit-opacity: .28; }
@@ -1245,8 +1245,13 @@ textarea.input { line-height: 1.55; }
 .daily-dial .dial-caption span:nth-child(2)::before { background: #8cd5ac; }
 .daily-dial .dial-caption span:nth-child(3)::before { background: #a8ced0; }
 .plan-art { min-height: 145px; width: 176px; isolation: isolate; }
-.plan-orbit { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; fill: none; stroke: #e8c88b75; }
-.plan-orbit circle { fill: #f1d397; stroke: none; }
+.plan-gauge { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; fill: none; }
+.plan-gauge-rim { stroke: #e9d1a170; stroke-dasharray: 1 4.8; }
+.plan-gauge-track { stroke: #f8e5b937; stroke-width: 5; }
+.plan-gauge-fill { stroke: #f1d091; stroke-width: 5; stroke-linecap: round; }
+.plan-gauge.is-complete .plan-gauge-fill { stroke: #a9dec0; }
+.plan-art .plan-big-week { font-size: 82px; }
+.plan-art .plan-big-label { margin-top: 9px; }
 .plan-big-week { color: #fff2d5; }
 .sleep-duration { font-family: var(--serif); font-weight: 400; font-size: 35px; }
 .sleep-duration-label { color: #e1e9e7; letter-spacing: .08em; text-wrap: balance; }
@@ -1309,6 +1314,62 @@ textarea.input { line-height: 1.55; }
 }
 @media (prefers-reduced-motion: reduce) {
   .daily-dial::before, .boot-spark { animation: none; }
+}
+
+/* Plan interactions */
+.session-heading { display: flex; align-items: flex-start; gap: 4px; }
+.session-heading .session-title { flex: 1; min-width: 0; }
+.session-grip {
+  flex: 0 0 9px;
+  height: 13px;
+  margin-top: 2px;
+  background: radial-gradient(circle, #4a6858 1px, transparent 1.2px) left top / 4px 4px;
+  opacity: .65;
+}
+[data-plan-session] { cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+[data-plan-session]:active, .plan-is-dragging, .plan-is-dragging * { cursor: grabbing; }
+.plan-is-dragging .session:hover { transform: none; }
+.plan-drag-source { opacity: .35; }
+.plan-drag-ghost {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  margin: 0;
+  opacity: .97;
+  background: #fffdf6;
+  border-color: #7e9f8c;
+  box-shadow: 0 12px 28px #12332750;
+  transition: none;
+  will-change: transform;
+}
+.day-col.plan-drop-target {
+  border-color: #4d9271;
+  background: #e1f0e4;
+  box-shadow: inset 0 0 0 1px #4d9271;
+}
+.session .check.on { color: #fff; background: #277553; border-color: #277553; }
+.session .check.on:not(.check-celebrate),
+.check-row [data-session].check.on:not(.check-celebrate) { animation: none; }
+.check.check-celebrate { animation: check-celebrate .48s cubic-bezier(.2,.76,.27,1.18); }
+.check-celebrate svg { animation: check-mark-in .3s ease-out; }
+@keyframes check-celebrate {
+  0% { transform: scale(.76); box-shadow: 0 0 0 0 #4caa7669; }
+  52% { transform: scale(1.18); box-shadow: 0 0 0 7px #4caa7620; }
+  100% { transform: scale(1); box-shadow: 0 0 0 12px #4caa7600; }
+}
+@keyframes check-mark-in {
+  from { opacity: 0; transform: scale(.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (max-width: 700px) {
+  .plan-art .plan-big-week { font-size: 54px; }
+  .session-actions .check { width: 38px; height: 38px; }
+  .session-actions .check svg { width: 15px; height: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .check.check-celebrate, .check-celebrate svg { animation: none; }
 }
 
 /* Program opening: an engraved date dial and a quieter, warmer dashboard. */

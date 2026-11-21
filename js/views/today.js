@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261121231641';
+import { getState, update } from '../store.js?v=20261121233742';
 import {
   $,
   $$,
@@ -14,8 +14,9 @@ import {
   deltaInfo,
   progressRing,
   activityRings,
+  animateDash,
   badge,
-} from '../ui.js?v=20261121231641';
+} from '../ui.js?v=20261121233742';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -24,7 +25,7 @@ import {
   todayIndexInWeek,
   programStartsIn,
   programStartKey,
-} from '../program.js?v=20261121231641';
+} from '../program.js?v=20261121233742';
 
 function launchDial(startDate, upcoming) {
   return `<div class="poster-art launch-art">
@@ -350,12 +351,26 @@ export function render(root) {
 
   /* sessions */
   $$('[data-session]', root).forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (event) => {
+      const rings = ['.ar-move', '.ar-exercise'];
+      const previous = rings.map((selector) => {
+        const ring = root.querySelector(selector);
+        return ring ? Number.parseFloat(getComputedStyle(ring).strokeDashoffset) : NaN;
+      });
+      const id = btn.dataset.session;
       update((s) => {
         const list = s.plans[week] || [];
-        const session = list.find((x) => x.id === btn.dataset.session);
+        const session = list.find((x) => x.id === id);
         if (session) session.done = !session.done;
       });
+      rings.forEach((selector, i) => {
+        const ring = root.querySelector(selector);
+        const from = Number.isFinite(previous[i]) ? previous[i] : Number(ring?.getAttribute('stroke-dasharray'));
+        animateDash(ring, from);
+      });
+      const next = root.querySelector(`[data-session="${CSS.escape(id)}"]`);
+      if (next?.getAttribute('aria-pressed') === 'true') next.classList.add('check-celebrate');
+      if (event.detail === 0) next?.focus({ preventScroll: true });
     });
   });
 

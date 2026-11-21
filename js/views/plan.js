@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261121231641';
+import { getState, update } from '../store.js?v=20261121233742';
 import {
   $,
   $$,
@@ -7,12 +7,12 @@ import {
   toast,
   confirmDialog,
   formModal,
-  progressRing,
+  animateDash,
   uid,
   todayISO,
   fmtDate,
   parseISO,
-} from '../ui.js?v=20261121231641';
+} from '../ui.js?v=20261121233742';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,7 +21,8 @@ import {
   isFirstWeek,
   programStartKey,
   programStartsIn,
-} from '../program.js?v=20261121231641';
+} from '../program.js?v=20261121233742';
+import { bindPlanDrag } from '../plan-drag.js?v=20261121233742';
 
 let planWeek = null;
 
@@ -37,6 +38,10 @@ export function render(root) {
   const done = sessions.filter((s) => s.done).length;
   const planned = sessions.length;
   const percent = planned ? Math.round((done / planned) * 100) : 0;
+  const dash = planned ? 100 * (1 - done / planned) : 100;
+  const previous = root.querySelector('.plan-gauge-fill');
+  const previousDash = previous?.dataset.week === activeWeek
+    ? Number.parseFloat(getComputedStyle(previous).strokeDashoffset) : NaN;
   const isCurrent = activeWeek === currentWeekKey();
   const first = isFirstWeek(activeWeek);
   const todayIndex = days.indexOf(todayISO());
@@ -91,10 +96,12 @@ export function render(root) {
           </div>
         </div>
          <div class="poster-art plan-art">
-           <svg class="plan-orbit" viewBox="0 0 180 150" aria-hidden="true">
-             <ellipse cx="90" cy="75" rx="70" ry="50" transform="rotate(-27 90 75)"/>
-             <ellipse cx="90" cy="75" rx="81" ry="57" transform="rotate(-27 90 75)" stroke-dasharray="1 5"/>
-             <circle cx="143" cy="35" r="2.6"/>
+           <svg class="plan-gauge ${planned && done === planned ? 'is-complete' : ''}" viewBox="0 0 160 160" aria-hidden="true">
+             <circle class="plan-gauge-rim" cx="80" cy="80" r="73"/>
+             <circle class="plan-gauge-track" cx="80" cy="80" r="62"/>
+             <circle class="plan-gauge-fill" cx="80" cy="80" r="62" pathLength="100"
+               stroke-dasharray="100 100" stroke-dashoffset="${dash.toFixed(2)}"
+               transform="rotate(-90 80 80)" data-week="${activeWeek}"/>
            </svg>
           <div class="plan-big-week">${pad}</div>
           <div class="plan-big-label">week</div>
@@ -105,7 +112,7 @@ export function render(root) {
            <div class="poster-stat"><b>${Math.max(0, planned - done)}</b><span>Remaining</span></div>
           <div class="poster-stat"><b>${planned ? `${percent}%` : '—'}</b><span>Completion</span></div>
         </div>
-        <div class="poster-progress">
+         <div class="poster-progress" role="progressbar" aria-label="Weekly session completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}" aria-valuetext="${done} of ${planned} sessions complete">
           <div class="bar-track"><div class="bar-fill ${
             percent === 100 ? 'green' : ''
           }" style="width:${percent}%"></div></div>
@@ -136,7 +143,7 @@ export function render(root) {
             .map((date, index) => {
               const daySessions = sessions.filter((s) => Number(s.day) === index);
               const isToday = date === todayISO();
-              return `<div class="day-col ${isToday ? 'is-today' : ''}">
+               return `<div class="day-col ${isToday ? 'is-today' : ''}" data-plan-day="${index}">
                 <div class="day-head">
                   <span class="day-name">${escapeHtml(fmtDate(date, 'day'))}</span>
                   <span class="day-num">${parseISO(date).getDate()}</span>
@@ -144,8 +151,11 @@ export function render(root) {
                 ${daySessions
                   .map((session) => {
                     const overdue = !session.done && date < todayISO();
-                    return `<div class="session ${session.done ? 'done' : ''}">
-                      <div class="session-title">${escapeHtml(session.title)}</div>
+                     return `<div class="session ${session.done ? 'done' : ''}" data-plan-session="${escapeHtml(session.id)}">
+                       <div class="session-heading">
+                         <div class="session-title">${escapeHtml(session.title)}</div>
+                         <span class="session-grip" aria-hidden="true"></span>
+                       </div>
                       ${
                         overdue
                           ? `<span class="badge red" style="font-size:8.5px;padding:1px 6px;align-self:flex-start">Missed</span>`
@@ -165,11 +175,9 @@ export function render(root) {
                           ${icon('check')}
                         </button>
                         <span style="flex:1"></span>
-                        <button class="icon-btn" data-session-note="${
-                          session.id
-                        }" title="${
-                          session.comment ? 'Edit note' : 'Add note'
-                        }" aria-label="Session note">${icon('note')}</button>
+                         <button class="icon-btn" data-session-note="${
+                           session.id
+                         }" title="Edit session or move to another day" aria-label="Edit session">${icon('pencil')}</button>
                         <button class="icon-btn danger" data-session-del="${
                           session.id
                         }" title="Delete session" aria-label="Delete session">${icon(
@@ -189,7 +197,7 @@ export function render(root) {
         </div>
 
         <div class="row wrap mt-4" style="justify-content:space-between">
-          <span class="tiny faint">Comments are optional. Plan the week, then tick sessions off as you go.</span>
+           <span class="tiny faint">Drag a session to move it. On a phone, press and hold first.</span>
           ${
             isCurrent
               ? `<button class="btn btn-secondary btn-sm" data-week="1">Plan next week ${icon(
@@ -201,6 +209,17 @@ export function render(root) {
       </div>
     </div>
   `;
+
+  const gauge = root.querySelector('.plan-gauge-fill');
+  if (previous?.getAttribute('stroke-dashoffset') !== gauge.getAttribute('stroke-dashoffset')) {
+    animateDash(gauge, previousDash);
+  }
+  bindPlanDrag($('.week-grid', root), (id, day) => {
+    const session = (getState().plans[activeWeek] || []).find((item) => item.id === id);
+    if (!session || !days[day] || Number(session.day) === day) return;
+    update(() => { session.day = day; });
+    toast(`Moved to ${fmtDate(days[day], 'weekday')}`);
+  });
 
   $('#add-session').addEventListener('click', () => openAddSession(activeWeek));
 
@@ -229,12 +248,16 @@ export function render(root) {
   });
 
   $$('[data-session-done]', root).forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (event) => {
+      const id = btn.dataset.sessionDone;
       update((s) => {
         const list = s.plans[activeWeek] || [];
-        const session = list.find((x) => x.id === btn.dataset.sessionDone);
+        const session = list.find((x) => x.id === id);
         if (session) session.done = !session.done;
       });
+      const next = root.querySelector(`[data-session-done="${CSS.escape(id)}"]`);
+      if (next?.getAttribute('aria-pressed') === 'true') next.classList.add('check-celebrate');
+      if (event.detail === 0) next?.focus({ preventScroll: true });
     });
   });
 
@@ -324,9 +347,16 @@ function openAddSession(activeWeek, dayIndex) {
 }
 
 function openEditSession(session, activeWeek) {
+  const days = weekDaysForKey(activeWeek);
   formModal({
     title: 'Session details',
     body: `
+      <div class="field">
+        <label for="edit-plan-day">Day</label>
+        <select class="select" id="edit-plan-day" name="day">
+          ${days.map((date, i) => `<option value="${i}" ${i === Number(session.day) ? 'selected' : ''}>${fmtDate(date, 'full')}</option>`).join('')}
+        </select>
+      </div>
       <div class="field">
         <label>Session</label>
         <input class="input" name="title" value="${escapeHtml(session.title)}" maxlength="80" required />
@@ -348,6 +378,8 @@ function openEditSession(session, activeWeek) {
         const list = s.plans[activeWeek] || [];
         const target = list.find((x) => x.id === session.id);
         if (target) {
+          const day = Number(data.day);
+          if (Number.isInteger(day) && days[day]) target.day = day;
           target.title = title;
           target.comment = (data.comment || '').trim();
         }
