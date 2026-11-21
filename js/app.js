@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261119102905';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261119102905';
-import { initCharts, destroyCharts } from './charts.js?v=20261119102905';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261119102905';
+import { api } from './api.js?v=20261121230252';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261121230252';
+import { initCharts, destroyCharts } from './charts.js?v=20261121230252';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261121230252';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261119102905';
-import { render as renderToday } from './views/today.js?v=20261119102905';
-import { render as renderSleep } from './views/sleep.js?v=20261119102905';
-import { render as renderPlan } from './views/plan.js?v=20261119102905';
-import { render as renderSport } from './views/sport.js?v=20261119102905';
-import { render as renderStretch } from './views/stretch.js?v=20261119102905';
+} from './program.js?v=20261121230252';
+import { render as renderToday } from './views/today.js?v=20261121230252';
+import { render as renderSleep } from './views/sleep.js?v=20261121230252';
+import { render as renderPlan } from './views/plan.js?v=20261121230252';
+import { render as renderSport } from './views/sport.js?v=20261121230252';
+import { render as renderStretch } from './views/stretch.js?v=20261121230252';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -32,6 +32,7 @@ const VIEWS = {
 };
 
 let lastRouteKey = null;
+let renderedDate = null;
 let routeTimer = null;
 
 function parseHash() {
@@ -51,7 +52,7 @@ function buildShell() {
       <aside class="sidebar">
         <div class="brand">
           <div class="brand-mark">
-            <img src="./icons/icon-192.png?v=20261119102905" alt="" width="46" height="46" />
+            <img src="./icons/icon-192.png?v=20261121230252" alt="" width="46" height="46" />
           </div>
           <div>
             <div class="brand-name">Routine</div>
@@ -180,7 +181,8 @@ function renderRoute() {
   const navItem = NAV.find((n) => n.name === name);
   document.title = `${navItem ? navItem.title : 'Routine'} · Routine`;
   const note = $('#masthead-note');
-  if (note) note.textContent = fmtDate(todayISO(), 'medium');
+  renderedDate = todayISO();
+  if (note) note.textContent = fmtDate(renderedDate, 'medium');
 
   try {
     VIEWS[name](view, param);
@@ -292,6 +294,14 @@ function startApp(state) {
   window.addEventListener('hashchange', renderRoute);
   if (!location.hash) location.hash = '#/today';
   renderRoute();
+  const checkDate = () => {
+    if (document.hidden || renderedDate === todayISO()) return;
+    if (document.activeElement?.matches('input, textarea, select') || $('#modal-root')?.childElementCount) return;
+    renderRoute();
+  };
+  window.setInterval(checkDate, 15_000);
+  window.addEventListener('focus', checkDate);
+  document.addEventListener('visibilitychange', checkDate);
   startSync();
   registerServiceWorker();
 }
@@ -316,7 +326,7 @@ function showCloudSetup(err) {
   boot.innerHTML = `
     <div class="cloud-setup">
       <div class="cloud-setup-emblem">
-        <img src="./icons/icon-192.png?v=20261119102905" alt="" width="84" height="84" />
+        <img src="./icons/icon-192.png?v=20261121230252" alt="" width="84" height="84" />
       </div>
       <div class="cloud-setup-kicker">Routine Cloud</div>
       <h1>Connect your routine.</h1>

@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261119102905';
+import { getState, update } from '../store.js?v=20261121230252';
 import {
   $,
   $$,
@@ -15,7 +15,7 @@ import {
   progressRing,
   activityRings,
   badge,
-} from '../ui.js?v=20261119102905';
+} from '../ui.js?v=20261121230252';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -23,12 +23,35 @@ import {
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from '../program.js?v=20261119102905';
+  programStartKey,
+} from '../program.js?v=20261121230252';
 
-function greetingFor(hour) {
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
+function launchDial(startDate, upcoming) {
+  return `<div class="poster-art launch-art">
+    <svg viewBox="0 0 250 250" class="launch-engraving" aria-hidden="true">
+      <defs>
+        <radialGradient id="launch-bloom">
+          <stop stop-color="#568467" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#122e24" stop-opacity=".8"/>
+        </radialGradient>
+        <linearGradient id="launch-brass" x2="80%" y2="100%">
+          <stop stop-color="#f0ce8b"/>
+          <stop offset="1" stop-color="#a1814c"/>
+        </linearGradient>
+      </defs>
+      <circle cx="125" cy="125" r="99" fill="url(#launch-bloom)" stroke="#d5c294" stroke-opacity=".24"/>
+      <circle cx="125" cy="125" r="111" fill="none" stroke="#d5c294" stroke-opacity=".35" stroke-dasharray="1 5"/>
+      <circle cx="125" cy="125" r="79" fill="none" stroke="#d5c294" stroke-opacity=".20"/>
+      <path d="M125 26a99 99 0 0 1 86 50" fill="none" stroke="url(#launch-brass)" stroke-width="2"/>
+      <path d="M39 174a99 99 0 0 0 86 50" fill="none" stroke="url(#launch-brass)" stroke-width="1" opacity=".6"/>
+      <circle cx="211" cy="76" r="3.4" fill="#f0ce8b"/>
+    </svg>
+    <div class="launch-readout">
+      <span class="launch-readout-kicker">Week 1</span>
+      <strong>Day 01</strong>
+      <span>${escapeHtml(upcoming ? fmtDate(startDate, 'short') : 'Today')}</span>
+    </div>
+  </div>`;
 }
 
 export function render(root) {
@@ -64,6 +87,9 @@ export function render(root) {
 
   const sleep = state.sleepLogs[today];
   const hasSleep = !!(sleep && (sleep.wake || sleep.bed));
+  const firstDay = weekNum === 1 && todayIndex === 0;
+  const launch = preStart || (firstDay && !hasSleep && !doneToday && !stretchedToday && !coreDoneToday);
+  const startDate = programStartKey();
   const wakeTarget = timeToMin(state.settings.wakeTarget) ?? 7 * 60;
   const bedTarget = timeToMin(state.settings.bedTarget) ?? 23 * 60;
   const wake = hasSleep && sleep.wake ? timeToMin(sleep.wake) : null;
@@ -85,7 +111,7 @@ export function render(root) {
   const stretchPct = Math.min(100, (stretchCount / stretchTarget) * 100);
 
   root.innerHTML = `
-    <section class="poster poster-today">
+    <section class="poster poster-today${launch ? ' poster-launch' : ''}">
       <div class="poster-body">
         <div class="poster-kicker">
           <span>01 / Overview</span>
@@ -95,22 +121,26 @@ export function render(root) {
             preStart ? `Week ${weekNum} ${startCopy}` : `Week ${weekNum} · Day ${todayIndex + 1}`
           }</span>
         </div>
-        <h1 class="poster-title">Your day<em>.</em></h1>
+        <h1 class="poster-title">${preStart ? 'A fresh <em>start.</em>' : firstDay && launch ? 'Day <em>one.</em>' : 'Your day<em>.</em>'}</h1>
         <p class="poster-sub">${
           preStart
-            ? `Week ${weekNum} starts ${
-                startsIn === 1 ? 'tomorrow' : `in ${startsIn} days`
-              }. You can plan sessions and start logging now.`
+             ? `Day 1 is ${escapeHtml(fmtDate(startDate, 'full'))}. You can plan your first week now.`
+             : firstDay && launch && !todaySessions.length
+             ? 'Your first week starts today. Log your sleep or plan your first workout.'
             : todaySessions.length
             ? `${todaySessions.length} ${todaySessions.length === 1 ? 'session' : 'sessions'} planned today · ${doneToday} complete.`
             : 'No sessions on your plan today.'
         }</p>
         <div class="poster-actions">
-          <a class="btn poster-btn" href="#/sleep">${icon('moon')} ${hasSleep ? 'Sleep log' : 'Log sleep'}</a>
-          <a class="btn poster-btn-ghost" href="#/plan">${icon('calendar')} Weekly plan</a>
+          ${preStart ? `
+            <a class="btn poster-btn" href="#/plan">${icon('calendar')} Plan Week 1</a>
+            <a class="btn poster-btn-ghost" href="#/sleep">${icon('moon')} Sleep log</a>
+          ` : `
+            <a class="btn poster-btn" href="#/sleep">${icon('moon')} ${hasSleep ? 'Sleep log' : 'Log sleep'}</a>
+            <a class="btn poster-btn-ghost" href="#/plan">${icon('calendar')} Weekly plan</a>`}
         </div>
       </div>
-      <div class="poster-art daily-dial">
+      ${launch ? launchDial(startDate, preStart) : `<div class="poster-art daily-dial">
         ${activityRings({
           move: trainingPct,
           exercise: todayPct,
@@ -120,12 +150,12 @@ export function render(root) {
            size: window.innerWidth < 640 ? 140 : 220,
         })}
         <div class="dial-caption"><span>Training</span><span>Today</span><span>Stretch</span></div>
-      </div>
+      </div>`}
       <div class="poster-stats">
-        <div class="poster-stat"><b>${doneSessions}<em>/${plannedSessions}</em></b><span>${
+        <div class="poster-stat"><b>${plannedSessions ? `${doneSessions}<em>/${plannedSessions}</em>` : '—'}</b><span>${
           preStart ? `Training · Week ${weekNum}` : 'Training this week'
         }</span></div>
-        <div class="poster-stat"><b>${doneToday}<em>/${todaySessions.length}</em></b><span>Today’s sessions</span></div>
+        <div class="poster-stat"><b>${todaySessions.length ? `${doneToday}<em>/${todaySessions.length}</em>` : '—'}</b><span>Today’s sessions</span></div>
         <div class="poster-stat"><b>${stretchCount}<em>/${stretchTarget}</em></b><span>${
           preStart ? `Stretch · Week ${weekNum}` : 'Stretch this week'
         }</span></div>
@@ -138,7 +168,7 @@ export function render(root) {
             const done = dayPlan.length > 0 && dayPlan.every((s) => s.done);
             const has = dayPlan.length > 0;
             const title = `${fmtDate(date, 'full')} — ${
-              dayPlan.length ? dayPlan.map((s) => s.title).join(', ') : 'no sessions'
+              dayPlan.length ? dayPlan.map((s) => s.title).join(', ') : i === 0 && weekNum === 1 ? 'Program start' : 'No sessions'
             }`;
             return `<div class="pw-day ${i === todayIndex ? 'today' : ''} ${
               done ? 'done' : ''

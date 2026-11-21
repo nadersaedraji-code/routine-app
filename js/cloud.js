@@ -10,10 +10,11 @@ const BACKEND = {
 };
 
 const KEY_SLOT = 'routine.cloud.key';
-const CACHE_SLOT = 'routine.cloud.state';
-const SYNC_SLOT = 'routine.cloud.syncedAt';
-const PENDING_SLOT = 'routine.cloud.pending';
-const ROW_ID = 'routine-cloud-state-v1';
+const CACHE_SLOT = 'routine.cloud.v2.state';
+const SYNC_SLOT = 'routine.cloud.v2.syncedAt';
+const PENDING_SLOT = 'routine.cloud.v2.pending';
+const LEGACY_SLOTS = ['routine.cloud.state', 'routine.cloud.syncedAt', 'routine.cloud.pending'];
+const ROW_ID = 'routine-cloud-state-v2';
 const MEMBER_ID = 'routine-owner';
 
 export class CloudError extends Error {
@@ -95,6 +96,7 @@ export function clearKey() {
   write(CACHE_SLOT, '');
   write(SYNC_SLOT, '');
   write(PENDING_SLOT, '');
+  for (const slot of LEGACY_SLOTS) write(slot, '');
 }
 
 export function cachedState() {
@@ -184,6 +186,8 @@ function withServerRev(state, row) {
 /** First load for this device: cloud wins, unless a local unsynced edit exists. */
 export async function loadInitial() {
   if (!hasKey()) throw new CloudError('NEEDS_SETUP', 'Connect this device to Routine Cloud.');
+  // Do not replay a queued save from before the reset into the new shared state.
+  for (const slot of LEGACY_SLOTS) write(slot, '');
   const local = cachedState();
   const pending = read(PENDING_SLOT) === '1';
 

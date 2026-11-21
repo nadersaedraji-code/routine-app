@@ -1183,7 +1183,7 @@ textarea.input { line-height: 1.55; }
 .main .poster::after {
   opacity: var(--orbit-opacity, .43);
   z-index: 0;
-  background: url('../icons/orbit-field.svg?v=20261119102905') right center / cover no-repeat;
+  background: url('../icons/orbit-field.svg?v=20261121230252') right center / cover no-repeat;
 }
 .poster-today { --orbit-opacity: 1; }
 .poster-sleep { --orbit-opacity: .28; }
@@ -1303,4 +1303,101 @@ textarea.input { line-height: 1.55; }
 }
 @media (prefers-reduced-motion: reduce) {
   .daily-dial::before, .boot-spark { animation: none; }
+}
+
+/* Program opening: an engraved date dial and a quieter, warmer dashboard. */
+body {
+  background: radial-gradient(ellipse at 100% 0%, #e7ede4, transparent 57%), #f4f1e9;
+}
+.sidebar { background: #f8f6efd9; }
+.daily-masthead {
+  border-color: #bfae8565;
+  color: #2d5143;
+}
+.section-heading {
+  gap: 15px;
+  align-items: baseline;
+}
+.section-heading h2 { color: #18372b; }
+.section-heading::after {
+  content: "";
+  flex: 1;
+  min-width: 10px;
+  height: 1px;
+  align-self: center;
+  background: linear-gradient(90deg, #bcab7f55, transparent);
+}
+.dash-grid > .card {
+  border-color: #60563f1e;
+  box-shadow: 0 8px 24px -18px #293a2f58;
+}
+.main .poster-launch {
+  --poster-bg:
+    radial-gradient(ellipse at 78% 48%, #355643 0%, transparent 55%),
+    linear-gradient(124deg, #0c241b 15%, #152e25 62%, #1f3c30);
+  --orbit-opacity: .95;
+}
+.poster-launch .poster-title {
+  max-width: 12ch;
+  font-size: clamp(60px, 7.8vw, 106px);
+}
+.poster-launch .poster-title em {
+  font-weight: 400;
+  color: #f0cd8d;
+}
+.poster-launch .poster-sub { max-width: 39ch; }
+.poster-launch .glass-chip {
+  border-color: #dcbf7e65;
+  background: #eac78216;
+  color: #f6e8c4;
+}
+.launch-art {
+  width: clamp(175px, 24vw, 292px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+.launch-art::before {
+  inset: 20%;
+  filter: blur(16px);
+  background: #c4b97a21;
+}
+.launch-engraving {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 12px 16px #071a1466);
+}
+.launch-readout {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: #f6e9c8;
+  font-size: 11px;
+  line-height: 1.1;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.launch-readout strong {
+  font: 400 clamp(35px, 5vw, 64px)/.95 var(--serif);
+  letter-spacing: -.055em;
+  text-transform: none;
+  color: #fff4d8;
+}
+.launch-readout-kicker { color: #eed098; }
+.poster-launch .poster-week .pw-day.upcoming {
+  background: #e7ca8c;
+  border-color: #ebce94;
+}
+.poster-launch .poster-week .pw-day.upcoming :is(span, b) { color: #30291c; }
+.poster-launch .poster-week .pw-day.upcoming i { background: #775a24; }
+
+@media (max-width: 700px) {
+  .main .poster-launch .poster-title { max-width: none; font-size: clamp(44px, 12.4vw, 70px); }
+  .main .poster-launch .launch-art { width: clamp(142px, 46vw, 195px); }
+  .launch-readout { gap: 5px; font-size: 9px; }
+  .launch-readout strong { font-size: clamp(30px, 9vw, 43px); }
 }
