@@ -1,16 +1,16 @@
 /* Better — installable shell. Code only; user data lives in the cloud. */
-const VERSION = 'routine-20261121231025';
+const VERSION = 'routine-20261121231307';
 const CORE = [
   './',
   './index.html',
-  './manifest.webmanifest?v=20261121231025',
-  './favicon.ico?v=20261121231025',
-  './icons/icon.svg?v=20261121231025',
-  './icons/icon-192.png?v=20261121231025',
-  './icons/icon-512.png?v=20261121231025',
-  './icons/icon-maskable-512.png?v=20261121231025',
+  './manifest.webmanifest?v=20261121231307',
+  './favicon.ico?v=20261121231307',
+  './icons/icon.svg?v=20261121231307',
+  './icons/icon-192.png?v=20261121231307',
+  './icons/icon-512.png?v=20261121231307',
+  './icons/icon-maskable-512.png?v=20261121231307',
   './icons/contours.svg',
-  './icons/orbit-field.svg?v=20261121231025',
+  './icons/orbit-field.svg?v=20261121231307',
 ];
 
 self.addEventListener('install', (event) => {

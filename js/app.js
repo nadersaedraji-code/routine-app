@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261121231025';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261121231025';
-import { initCharts, destroyCharts } from './charts.js?v=20261121231025';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261121231025';
+import { api } from './api.js?v=20261121231307';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261121231307';
+import { initCharts, destroyCharts } from './charts.js?v=20261121231307';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261121231307';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261121231025';
-import { render as renderToday } from './views/today.js?v=20261121231025';
-import { render as renderSleep } from './views/sleep.js?v=20261121231025';
-import { render as renderPlan } from './views/plan.js?v=20261121231025';
-import { render as renderSport } from './views/sport.js?v=20261121231025';
-import { render as renderStretch } from './views/stretch.js?v=20261121231025';
+} from './program.js?v=20261121231307';
+import { render as renderToday } from './views/today.js?v=20261121231307';
+import { render as renderSleep } from './views/sleep.js?v=20261121231307';
+import { render as renderPlan } from './views/plan.js?v=20261121231307';
+import { render as renderSport } from './views/sport.js?v=20261121231307';
+import { render as renderStretch } from './views/stretch.js?v=20261121231307';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -52,7 +52,7 @@ function buildShell() {
       <aside class="sidebar">
         <div class="brand">
           <div class="brand-mark">
-            <img src="./icons/icon-192.png?v=20261121231025" alt="" width="46" height="46" />
+            <img src="./icons/icon-192.png?v=20261121231307" alt="" width="46" height="46" />
           </div>
           <div>
             <div class="brand-name">Better</div>
@@ -81,7 +81,7 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261121231025" alt="" width="24" height="24" /> Better</span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261121231307" alt="" width="24" height="24" /> Better</span>
           <span id="masthead-note"></span>
         </header>
         <div class="view" id="view"></div>
@@ -326,7 +326,7 @@ function showCloudSetup(err) {
   boot.innerHTML = `
     <div class="cloud-setup">
       <div class="cloud-setup-emblem">
-        <img src="./icons/icon-192.png?v=20261121231025" alt="" width="84" height="84" />
+        <img src="./icons/icon-192.png?v=20261121231307" alt="" width="84" height="84" />
       </div>
       <div class="cloud-setup-kicker">Private sync</div>
       <h1>Connect to Better</h1>
