@@ -1,45 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Better">
-  <title>Better — The Upward Fold</title>
-  <desc>Two ascending loops of folded emerald and champagne metal form an abstract B.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 252 252" role="img" aria-label="Better">
+  <title>Better — Élan</title>
+  <desc>Three ascending curves in jade, mint and warm ivory on deep emerald.</desc>
   <defs>
-    <clipPath id="tile"><rect width="512" height="512" rx="116"/></clipPath>
-    <linearGradient id="ground" x1="80" y1="23" x2="445" y2="506" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#16483C"/><stop offset=".55" stop-color="#0E3129"/><stop offset="1" stop-color="#071D1B"/>
+    <linearGradient id="jade" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#19352C"/>
+      <stop offset="1" stop-color="#10271F"/>
     </linearGradient>
-    <radialGradient id="bloom" cx="320" cy="187" r="247" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#3C8D71" stop-opacity=".61"/><stop offset=".6" stop-color="#267557" stop-opacity=".17"/><stop offset="1" stop-color="#153926" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="foil" x1="148" y1="312" x2="327" y2="103" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#126954"/><stop offset=".26" stop-color="#55B896"/><stop offset=".54" stop-color="#AADEC4"/><stop offset=".74" stop-color="#F8EBC0"/><stop offset=".92" stop-color="#EED08D"/><stop offset="1" stop-color="#A87240"/>
-    </linearGradient>
-    <linearGradient id="lower" x1="147" y1="367" x2="379" y2="259" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#124A40"/><stop offset=".24" stop-color="#238A6F"/><stop offset=".57" stop-color="#70C4A1"/><stop offset=".82" stop-color="#D9E5B3"/><stop offset="1" stop-color="#FFF1C5"/>
-    </linearGradient>
-    <linearGradient id="edge" x1="145" y1="388" x2="386" y2="295" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0D483D"/><stop offset=".51" stop-color="#1E765B"/><stop offset=".82" stop-color="#6BA787"/><stop offset="1" stop-color="#2B6151"/>
-    </linearGradient>
-    <linearGradient id="return" x1="216" y1="257" x2="370" y2="137" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1B6751"/><stop offset=".48" stop-color="#69AF90"/><stop offset="1" stop-color="#F2CE8D"/>
-    </linearGradient>
-    <linearGradient id="glint" x1="142" y1="389" x2="347" y2="137" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#468F73" stop-opacity="0"/><stop offset=".5" stop-color="#C8F7DD" stop-opacity=".85"/><stop offset=".94" stop-color="#FFF2C6" stop-opacity=".8"/><stop offset="1" stop-color="#FFF2C6" stop-opacity="0"/>
-    </linearGradient>
-    <path id="upper-loop" fill-rule="evenodd" d="M134 347c14-29 30-65 46-105 18-47 40-91 78-117 39-27 91-27 114 7 21 31 5 70-29 96-43 32-108 35-152 76-13 13-25 29-36 48z M218 247c27-15 68-20 96-40 27-19 38-42 24-55-14-14-43-9-66 8-23 18-39 50-54 87z"/>
-    <path id="lower-loop" fill-rule="evenodd" d="M136 349c20-39 49-76 96-98 63-29 129-31 153 8 29 46-17 103-75 130-59 28-118 29-146-3-10-12-16-24-16-38l22-24c4 23 23 40 47 45 28 7 59-2 85-18 32-19 56-48 44-64-13-18-45-17-81-3-43 17-74 47-108 96z"/>
   </defs>
-  <g clip-path="url(#tile)">
-    <rect width="512" height="512" fill="url(#ground)"/>
-    <rect width="512" height="512" fill="url(#bloom)"/>
-    <g fill="none" stroke="#B7DABC" stroke-opacity=".16">
-      <circle cx="256" cy="256" r="199" stroke-dasharray="1 7" stroke-width="1.4"/>
-      <path d="M62 309A201 201 0 0 1 307 61M450 204a201 201 0 0 1-246 247" stroke-opacity=".12"/>
-    </g>
-    <use href="#upper-loop" fill="#061914" transform="translate(2 8)" opacity=".8"/>
-    <use href="#lower-loop" fill="#061914" transform="translate(2 8)" opacity=".8"/>
-    <use href="#upper-loop" fill="url(#foil)"/>
-    <path d="M218 247c27-15 68-20 96-40 27-19 38-42 24-55l12 7c18 18-2 47-34 65-34 20-74 25-106 46z" fill="url(#return)"/>
-    <use href="#lower-loop" fill="url(#lower)"/>
-    <path d="M385 259c29 46-17 103-75 130-59 28-118 29-146-3-10-12-16-24-16-38l9-8c3 16 9 26 19 35 25 24 79 21 131-3 56-25 91-76 78-113z" fill="url(#edge)"/>
-    <path d="M157 373c31-45 67-77 112-94 35-13 67-13 80 4M152 342c16-30 32-69 46-104 22-57 48-91 81-108 32-16 58-13 76-3" fill="none" stroke="url(#glint)" stroke-width="2" stroke-linecap="round"/>
-  </g>
+  <rect width="252" height="252" rx="54" fill="url(#jade)"/>
+  <path d="M47 161c29-18 53-47 68-80h22c-16 42-38 68-71 88z" fill="#5DAE89"/>
+  <path d="M58 180c42-22 74-62 91-107h23c-16 46-54 91-97 114z" fill="#AEDEC2"/>
+  <path d="M69 199c54-25 93-73 111-129h25c-17 55-59 106-116 134z" fill="#F0E3B8"/>
+  <path d="M41 215h170" fill="none" stroke="#B9CCAC" stroke-opacity=".3"/>
 </svg>
