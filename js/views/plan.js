@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261121230252';
+import { getState, update } from '../store.js?v=20261121230522';
 import {
   $,
   $$,
@@ -12,7 +12,7 @@ import {
   todayISO,
   fmtDate,
   parseISO,
-} from '../ui.js?v=20261121230252';
+} from '../ui.js?v=20261121230522';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,12 +21,14 @@ import {
   isFirstWeek,
   programStartKey,
   programStartsIn,
-} from '../program.js?v=20261121230252';
+} from '../program.js?v=20261121230522';
 
 let planWeek = null;
 
 export function render(root) {
-  if (planWeek && planWeek < programStartKey()) planWeek = currentWeekKey();
+  if (planWeek) {
+    planWeek = planWeek < programStartKey() ? currentWeekKey() : currentWeekKey(parseISO(planWeek));
+  }
   const state = getState();
   const activeWeek = planWeek || currentWeekKey();
   const label = weekLabelForKey(activeWeek);

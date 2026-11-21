@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261121230252';
+import { getState, update } from '../store.js?v=20261121230522';
 import {
   $,
   $$,
@@ -23,8 +23,8 @@ import {
   relativeDay,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261121230252';
-import { sleepChart } from '../charts.js?v=20261121230252';
+} from '../ui.js?v=20261121230522';
+import { sleepChart } from '../charts.js?v=20261121230522';
 
 function avgClock(entries, key) {
   const vals = entries

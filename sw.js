@@ -1,5 +1,5 @@
 /* Routine — installable shell. Code only; user data lives in the cloud. */
-const VERSION = 'routine-20261121230252';
+const VERSION = 'routine-20261121230522';
 const CORE = [
   './',
   './index.html',
@@ -8,7 +8,7 @@ const CORE = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/contours.svg',
-  './icons/orbit-field.svg?v=20261121230252',
+  './icons/orbit-field.svg?v=20261121230522',
 ];
 
 self.addEventListener('install', (event) => {

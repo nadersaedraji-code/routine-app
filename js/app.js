@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261121230252';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261121230252';
-import { initCharts, destroyCharts } from './charts.js?v=20261121230252';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261121230252';
+import { api } from './api.js?v=20261121230522';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261121230522';
+import { initCharts, destroyCharts } from './charts.js?v=20261121230522';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261121230522';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261121230252';
-import { render as renderToday } from './views/today.js?v=20261121230252';
-import { render as renderSleep } from './views/sleep.js?v=20261121230252';
-import { render as renderPlan } from './views/plan.js?v=20261121230252';
-import { render as renderSport } from './views/sport.js?v=20261121230252';
-import { render as renderStretch } from './views/stretch.js?v=20261121230252';
+} from './program.js?v=20261121230522';
+import { render as renderToday } from './views/today.js?v=20261121230522';
+import { render as renderSleep } from './views/sleep.js?v=20261121230522';
+import { render as renderPlan } from './views/plan.js?v=20261121230522';
+import { render as renderSport } from './views/sport.js?v=20261121230522';
+import { render as renderStretch } from './views/stretch.js?v=20261121230522';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -52,7 +52,7 @@ function buildShell() {
       <aside class="sidebar">
         <div class="brand">
           <div class="brand-mark">
-            <img src="./icons/icon-192.png?v=20261121230252" alt="" width="46" height="46" />
+            <img src="./icons/icon-192.png?v=20261121230522" alt="" width="46" height="46" />
           </div>
           <div>
             <div class="brand-name">Routine</div>
@@ -326,7 +326,7 @@ function showCloudSetup(err) {
   boot.innerHTML = `
     <div class="cloud-setup">
       <div class="cloud-setup-emblem">
-        <img src="./icons/icon-192.png?v=20261121230252" alt="" width="84" height="84" />
+        <img src="./icons/icon-192.png?v=20261121230522" alt="" width="84" height="84" />
       </div>
       <div class="cloud-setup-kicker">Routine Cloud</div>
       <h1>Connect your routine.</h1>
