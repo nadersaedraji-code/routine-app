@@ -10,11 +10,14 @@ const BACKEND = {
 };
 
 const KEY_SLOT = 'routine.cloud.key';
-const CACHE_SLOT = 'routine.cloud.v2.state';
-const SYNC_SLOT = 'routine.cloud.v2.syncedAt';
-const PENDING_SLOT = 'routine.cloud.v2.pending';
-const LEGACY_SLOTS = ['routine.cloud.state', 'routine.cloud.syncedAt', 'routine.cloud.pending'];
-const ROW_ID = 'routine-cloud-state-v2';
+const CACHE_SLOT = 'routine.cloud.v3.state';
+const SYNC_SLOT = 'routine.cloud.v3.syncedAt';
+const PENDING_SLOT = 'routine.cloud.v3.pending';
+const LEGACY_SLOTS = [
+  'routine.cloud.state', 'routine.cloud.syncedAt', 'routine.cloud.pending',
+  'routine.cloud.v2.state', 'routine.cloud.v2.syncedAt', 'routine.cloud.v2.pending',
+];
+const ROW_ID = 'routine-cloud-state-v3';
 const MEMBER_ID = 'routine-owner';
 
 export class CloudError extends Error {

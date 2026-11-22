@@ -1,4 +1,4 @@
-export const DEFAULT_PROGRAM_START = '2026-11-22';
+export const DEFAULT_PROGRAM_START = '2026-11-23';
 
 export function freshState(now = new Date()) {
   return {

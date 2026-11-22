@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261121233742';
+import { getState, update } from '../store.js?v=20261122145605';
 import {
   $,
   $$,
@@ -12,7 +12,7 @@ import {
   todayISO,
   fmtDate,
   parseISO,
-} from '../ui.js?v=20261121233742';
+} from '../ui.js?v=20261122145605';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,8 +21,8 @@ import {
   isFirstWeek,
   programStartKey,
   programStartsIn,
-} from '../program.js?v=20261121233742';
-import { bindPlanDrag } from '../plan-drag.js?v=20261121233742';
+} from '../program.js?v=20261122145605';
+import { bindPlanDrag } from '../plan-drag.js?v=20261122145605';
 
 let planWeek = null;
 
