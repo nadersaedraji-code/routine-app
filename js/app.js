@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261123125934';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261123125934';
-import { initCharts, destroyCharts } from './charts.js?v=20261123125934';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261123125934';
+import { api } from './api.js?v=20261123135444';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261123135444';
+import { initCharts, destroyCharts } from './charts.js?v=20261123135444';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261123135444';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261123125934';
-import { render as renderToday } from './views/today.js?v=20261123125934';
-import { render as renderSleep } from './views/sleep.js?v=20261123125934';
-import { render as renderPlan } from './views/plan.js?v=20261123125934';
-import { render as renderSport } from './views/sport.js?v=20261123125934';
-import { render as renderStretch } from './views/stretch.js?v=20261123125934';
+} from './program.js?v=20261123135444';
+import { render as renderToday } from './views/today.js?v=20261123135444';
+import { render as renderSleep } from './views/sleep.js?v=20261123135444';
+import { render as renderPlan } from './views/plan.js?v=20261123135444';
+import { render as renderSport } from './views/sport.js?v=20261123135444';
+import { render as renderStretch } from './views/stretch.js?v=20261123135444';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -81,8 +81,18 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261123125934" alt="" width="24" height="24" /> Better</span>
-          <span id="masthead-note"></span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261123135444" alt="" width="24" height="24" /> Better</span>
+          <span class="masthead-tools">
+            <span id="masthead-note"></span>
+            <label class="theme-control">
+              <span class="visually-hidden">Appearance</span>
+              <select id="theme-mode" aria-label="Appearance">
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+          </span>
         </header>
         <div class="view" id="view"></div>
       </main>
@@ -284,6 +294,16 @@ function registerServiceWorker() {
 function startApp(state) {
   initStore(state);
   buildShell();
+  const themeMode = $('#theme-mode');
+  if (themeMode && window.BetterTheme) {
+    themeMode.value = window.BetterTheme.mode;
+    themeMode.addEventListener('change', () => { window.BetterTheme.set(themeMode.value); });
+    window.addEventListener('better-theme-change', () => {
+      themeMode.value = window.BetterTheme.mode;
+      initCharts();
+      renderRoute();
+    });
+  }
   installGlobalActions();
   const bootEl = $('#boot');
   if (bootEl) bootEl.remove();

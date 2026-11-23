@@ -1189,7 +1189,7 @@ textarea.input { line-height: 1.55; }
 .main .poster::after {
   opacity: var(--orbit-opacity, .43);
   z-index: 0;
-  background: url('../icons/orbit-field.svg?v=20261123125934') right center / cover no-repeat;
+  background: url('../icons/orbit-field.svg?v=20261123135444') right center / cover no-repeat;
 }
 .poster-today { --orbit-opacity: 1; }
 .poster-sleep { --orbit-opacity: .28; }

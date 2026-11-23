@@ -8,7 +8,7 @@ import {
   timeToMin,
   fmtDate,
   round1,
-} from './ui.js?v=20261123125934';
+} from './ui.js?v=20261123135444';
 
 const FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -26,13 +26,15 @@ const BORDER = 'rgba(60,60,67,0.12)';
 const GRID = 'rgba(60,60,67,0.08)';
 
 const registry = [];
+const ink = (name, fallback) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 
 export function initCharts() {
   if (typeof Chart === 'undefined') return;
   Chart.defaults.font.family = FONT;
   Chart.defaults.font.size = 10.5;
-  Chart.defaults.color = MUTED;
-  Chart.defaults.borderColor = BORDER;
+  Chart.defaults.color = ink('--muted', MUTED);
+  Chart.defaults.borderColor = ink('--border', BORDER);
   Chart.defaults.plugins.legend.display = true;
   Chart.defaults.plugins.legend.position = 'bottom';
   Chart.defaults.plugins.legend.align = 'start';
@@ -41,12 +43,12 @@ export function initCharts() {
   Chart.defaults.plugins.legend.labels.boxWidth = 6;
   Chart.defaults.plugins.legend.labels.boxHeight = 6;
   Chart.defaults.plugins.legend.labels.padding = 12;
-  Chart.defaults.plugins.legend.labels.color = MUTED;
-  Chart.defaults.plugins.tooltip.backgroundColor = SURFACE;
-  Chart.defaults.plugins.tooltip.borderColor = BORDER;
+  Chart.defaults.plugins.legend.labels.color = ink('--muted', MUTED);
+  Chart.defaults.plugins.tooltip.backgroundColor = ink('--surface', SURFACE);
+  Chart.defaults.plugins.tooltip.borderColor = ink('--border-strong', BORDER);
   Chart.defaults.plugins.tooltip.borderWidth = 1;
-  Chart.defaults.plugins.tooltip.titleColor = '#1C1C1E';
-  Chart.defaults.plugins.tooltip.bodyColor = '#6C6C70';
+  Chart.defaults.plugins.tooltip.titleColor = ink('--text', '#1C1C1E');
+  Chart.defaults.plugins.tooltip.bodyColor = ink('--muted', '#6C6C70');
   Chart.defaults.plugins.tooltip.padding = 12;
   Chart.defaults.plugins.tooltip.cornerRadius = 12;
   Chart.defaults.plugins.tooltip.displayColors = true;
@@ -88,7 +90,7 @@ function baseScales(extra = {}) {
       ...(extra.x || {}),
     },
     y: {
-      grid: { color: GRID, drawTicks: false },
+      grid: { color: ink('--chart-grid', GRID), drawTicks: false },
       border: { display: false },
       ticks: { padding: 8, maxTicksLimit: 5, font: { size: 10 } },
       ...(extra.y || {}),
@@ -134,12 +136,12 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
         {
           label: 'Wake',
           data: wake,
-          borderColor: ACCENT,
-          backgroundColor: ACCENT,
+          borderColor: ink('--chart-accent', ACCENT),
+          backgroundColor: ink('--chart-accent', ACCENT),
           borderWidth: 2.4,
           pointRadius: 2.5,
           pointHoverRadius: 5,
-          pointBackgroundColor: ACCENT,
+          pointBackgroundColor: ink('--chart-accent', ACCENT),
           tension: 0.35,
           spanGaps: true,
           order: 1,
@@ -147,8 +149,8 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
         {
           label: 'Bed',
           data: bed,
-          borderColor: PURPLE,
-          backgroundColor: PURPLE,
+          borderColor: ink('--purple', PURPLE),
+          backgroundColor: ink('--purple', PURPLE),
           borderWidth: 2.4,
           pointRadius: 2.5,
           pointHoverRadius: 5,
@@ -160,7 +162,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
         {
           label: 'Wake goal',
           data: dates.map(() => tw),
-          borderColor: 'rgba(60,60,67,0.32)',
+          borderColor: ink('--chart-goal', 'rgba(60,60,67,0.32)'),
           borderDash: [5, 5],
           borderWidth: 1.4,
           pointRadius: 0,
@@ -171,7 +173,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
         {
           label: 'Bed goal',
           data: dates.map(() => tb),
-          borderColor: 'rgba(94,92,230,0.42)',
+          borderColor: ink('--chart-bed-goal', 'rgba(94,92,230,0.42)'),
           borderDash: [5, 5],
           borderWidth: 1.4,
           pointRadius: 0,
@@ -481,14 +483,14 @@ export function weightChart(canvas, { points, goal }) {
     {
       label: 'Weight',
       data: readings,
-      borderColor: '#24675F',
+      borderColor: ink('--chart-brand', '#24675F'),
       backgroundColor: areaFill(canvas, 'rgba(36,103,95,0.18)'),
       fill: true,
       borderWidth: 2.6,
       pointRadius: (ctx) => ctx.dataIndex === points.length - 1 ? 5 : points.length > 60 ? 0 : 3,
       pointHoverRadius: 6,
-      pointBackgroundColor: '#24675F',
-      pointBorderColor: '#ffffff',
+      pointBackgroundColor: ink('--chart-brand', '#24675F'),
+      pointBorderColor: ink('--surface', '#ffffff'),
       pointBorderWidth: 1.5,
       cubicInterpolationMode: 'monotone',
     },
@@ -504,7 +506,7 @@ export function weightChart(canvas, { points, goal }) {
         if (y < chartArea.top || y > chartArea.bottom) return;
         ctx.save();
         ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = '#a67a37';
+        ctx.strokeStyle = ink('--chart-weight-goal', '#a67a37');
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(chartArea.left, y);
@@ -522,7 +524,7 @@ export function weightChart(canvas, { points, goal }) {
           min: readings[0].x - dayPadding,
           max: readings.at(-1).x + dayPadding,
           ticks: {
-            color: '#596860',
+            color: ink('--muted', '#596860'),
             precision: 0,
             maxTicksLimit: 6,
             maxRotation: 0,
@@ -537,7 +539,7 @@ export function weightChart(canvas, { points, goal }) {
             precision: 1,
             padding: 8,
             maxTicksLimit: 6,
-            color: '#596860',
+            color: ink('--muted', '#596860'),
             font: { size: 10 },
             callback: (value) => `${value}`,
           },

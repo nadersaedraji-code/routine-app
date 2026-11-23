@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261123125934';
+import { getState, update } from '../store.js?v=20261123135444';
 import {
   $,
   $$,
@@ -19,7 +19,7 @@ import {
   activityRings,
   animateDash,
   badge,
-} from '../ui.js?v=20261123125934';
+} from '../ui.js?v=20261123135444';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -28,7 +28,7 @@ import {
   todayIndexInWeek,
   programStartsIn,
   programStartKey,
-} from '../program.js?v=20261123125934';
+} from '../program.js?v=20261123135444';
 
 function launchDial(startDate, upcoming) {
   return `<div class="poster-art launch-art">
