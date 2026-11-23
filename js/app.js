@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261123135444';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261123135444';
-import { initCharts, destroyCharts } from './charts.js?v=20261123135444';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261123135444';
+import { api } from './api.js?v=20261123140135';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261123140135';
+import { initCharts, destroyCharts } from './charts.js?v=20261123140135';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261123140135';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261123135444';
-import { render as renderToday } from './views/today.js?v=20261123135444';
-import { render as renderSleep } from './views/sleep.js?v=20261123135444';
-import { render as renderPlan } from './views/plan.js?v=20261123135444';
-import { render as renderSport } from './views/sport.js?v=20261123135444';
-import { render as renderStretch } from './views/stretch.js?v=20261123135444';
+} from './program.js?v=20261123140135';
+import { render as renderToday } from './views/today.js?v=20261123140135';
+import { render as renderSleep } from './views/sleep.js?v=20261123140135';
+import { render as renderPlan } from './views/plan.js?v=20261123140135';
+import { render as renderSport } from './views/sport.js?v=20261123140135';
+import { render as renderStretch } from './views/stretch.js?v=20261123140135';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -81,7 +81,7 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261123135444" alt="" width="24" height="24" /> Better</span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261123140135" alt="" width="24" height="24" /> Better</span>
           <span class="masthead-tools">
             <span id="masthead-note"></span>
             <label class="theme-control">

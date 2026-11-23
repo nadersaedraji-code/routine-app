@@ -42,7 +42,8 @@
 .theme-control select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 700px) {
   .masthead-tools { gap: 6px; }
-  .daily-masthead > .masthead-tools { font: inherit; }
+  /* atelier.css hides the old date span on phones; keep the new control visible. */
+  .daily-masthead > span.masthead-tools { display: inline-flex; font: inherit; }
   .daily-masthead > .masthead-tools #masthead-note { display: none; }
 }
 
