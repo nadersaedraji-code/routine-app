@@ -1,4 +1,4 @@
-import * as cloud from './cloud.js?v=20261123124852';
+import * as cloud from './cloud.js?v=20261123125934';
 
 /* The published app is cloud-first. The old local server remains useful for
  * development, but the phone and Mac now talk to the same private space. */

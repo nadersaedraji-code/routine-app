@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261123124852';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261123124852';
-import { initCharts, destroyCharts } from './charts.js?v=20261123124852';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261123124852';
+import { api } from './api.js?v=20261123125934';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261123125934';
+import { initCharts, destroyCharts } from './charts.js?v=20261123125934';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261123125934';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261123124852';
-import { render as renderToday } from './views/today.js?v=20261123124852';
-import { render as renderSleep } from './views/sleep.js?v=20261123124852';
-import { render as renderPlan } from './views/plan.js?v=20261123124852';
-import { render as renderSport } from './views/sport.js?v=20261123124852';
-import { render as renderStretch } from './views/stretch.js?v=20261123124852';
+} from './program.js?v=20261123125934';
+import { render as renderToday } from './views/today.js?v=20261123125934';
+import { render as renderSleep } from './views/sleep.js?v=20261123125934';
+import { render as renderPlan } from './views/plan.js?v=20261123125934';
+import { render as renderSport } from './views/sport.js?v=20261123125934';
+import { render as renderStretch } from './views/stretch.js?v=20261123125934';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -81,7 +81,7 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261123124852" alt="" width="24" height="24" /> Better</span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261123125934" alt="" width="24" height="24" /> Better</span>
           <span id="masthead-note"></span>
         </header>
         <div class="view" id="view"></div>

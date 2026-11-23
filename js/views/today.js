@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261123124852';
+import { getState, update } from '../store.js?v=20261123125934';
 import {
   $,
   $$,
@@ -8,6 +8,9 @@ import {
   confirmDialog,
   emptyState,
   todayISO,
+  isoDate,
+  addDays,
+  parseISO,
   fmtDate,
   fmtDuration,
   timeToMin,
@@ -16,7 +19,7 @@ import {
   activityRings,
   animateDash,
   badge,
-} from '../ui.js?v=20261123124852';
+} from '../ui.js?v=20261123125934';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -25,7 +28,7 @@ import {
   todayIndexInWeek,
   programStartsIn,
   programStartKey,
-} from '../program.js?v=20261123124852';
+} from '../program.js?v=20261123125934';
 
 function launchDial(startDate, upcoming) {
   return `<div class="poster-art launch-art">
@@ -87,6 +90,7 @@ export function render(root) {
   const coreDoneToday = state.coreLogs?.some((l) => l.date === today);
 
   const sleep = state.sleepLogs[today];
+  const tonightBed = state.sleepLogs[isoDate(addDays(parseISO(today), 1))]?.bed;
   const hasSleep = !!(sleep && (sleep.wake || sleep.bed));
   const firstDay = weekNum === 1 && todayIndex === 0;
   const launch = preStart || (firstDay && !hasSleep && !doneToday && !stretchedToday && !coreDoneToday);
@@ -216,10 +220,11 @@ export function render(root) {
             : emptyState({
                 iconName: 'moon',
                 title: 'No sleep logged yet',
-                 text: 'Add your bedtime and wake time to see how long you slept.',
-                action: `<a class="btn btn-primary btn-sm" href="#/sleep">${icon('plus')} Log last night</a>`,
+                text: 'Log your wake-up and bedtime separately on the Sleep page.',
+                action: `<a class="btn btn-primary btn-sm" href="#/sleep">${icon('plus')} Log a time</a>`,
               })
         }
+        ${tonightBed ? `<p class="tiny faint mt-3">Tonight’s bedtime saved: ${escapeHtml(tonightBed)}</p>` : ''}
       </div>
 
       <div class="card train-card tint-train">

@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261123124852';
+import { getState, update } from '../store.js?v=20261123125934';
 import {
   $,
   $$,
@@ -23,8 +23,8 @@ import {
   relativeDay,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261123124852';
-import { sleepChart } from '../charts.js?v=20261123124852';
+} from '../ui.js?v=20261123125934';
+import { sleepChart } from '../charts.js?v=20261123125934';
 
 function avgClock(entries, key) {
   const vals = entries
@@ -69,6 +69,8 @@ export function render(root) {
   const bedTarget = timeToMin(state.settings.bedTarget) ?? 23 * 60;
   const today = todayISO();
   const todayLog = state.sleepLogs[today] || {};
+  const tomorrow = isoDate(addDays(parseISO(today), 1));
+  const tonightLog = state.sleepLogs[tomorrow] || {};
   const todayWake = todayLog.wake ? timeToMin(todayLog.wake) : null;
   const todayBed = todayLog.bed ? timeToMin(todayLog.bed) : null;
   const todaySleepMinutes =
@@ -124,10 +126,10 @@ export function render(root) {
         <p class="poster-sub">${
           todaySleepMinutes != null
             ? `Last night: ${escapeHtml(todayLog.bed)} to ${escapeHtml(todayLog.wake)}.`
-            : 'Record when you went to bed and woke up to see your sleep patterns.'
+            : 'Log your wake-up now and your bedtime tonight, separately.'
         }</p>
         <div class="poster-actions">
-          <button class="btn poster-btn" id="sleep-jump">${icon('plus')} ${todaySleepMinutes == null ? 'Log sleep' : 'Edit last night'}</button>
+          <button class="btn poster-btn" id="sleep-jump">${icon('plus')} Log wake-up or bedtime</button>
         </div>
       </div>
       <div class="poster-art sleep-art">
@@ -136,7 +138,7 @@ export function render(root) {
           todaySleepMinutes != null
             ? `<div class="sleep-duration">${fmtDuration(todaySleepMinutes)}</div>
                <div class="sleep-duration-label">last night</div>`
-            : `<div class="sleep-duration-label">No sleep logged today</div>`
+             : `<div class="sleep-duration-label">${todayLog.wake ? 'Wake-up logged' : 'Log your wake-up'}</div>`
         }
       </div>
       <div class="poster-stats">
@@ -170,7 +172,7 @@ export function render(root) {
     <div class="grid-2">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">${icon('sunrise')} Log sleep</div>
+          <div class="card-title">${icon('sunrise')} Wake-up</div>
         </div>
         <form id="sleep-form">
           <div class="form-grid">
@@ -180,15 +182,7 @@ export function render(root) {
             </div>
             <div class="field">
               <label for="sleep-wake">Wake time</label>
-              <input class="input" type="time" id="sleep-wake" name="wake" value="${escapeHtml(
-                todayLog.wake || state.settings.wakeTarget
-              )}" required />
-            </div>
-            <div class="field">
-              <label for="sleep-bed">Bedtime</label>
-              <input class="input" type="time" id="sleep-bed" name="bed" value="${escapeHtml(
-                todayLog.bed || state.settings.bedTarget
-              )}" required />
+              <input class="input" type="time" id="sleep-wake" name="wake" value="${escapeHtml(todayLog.wake || '')}" required />
             </div>
           </div>
           <div class="field mt-3">
@@ -198,13 +192,35 @@ export function render(root) {
             )}</textarea>
           </div>
           <div class="row wrap mt-4">
-            <button class="btn btn-primary" type="submit">${icon('check')} Save sleep log</button>
-            <span class="form-note">One entry per date.</span>
+            <button class="btn btn-primary" type="submit">${icon('check')} Save wake-up</button>
           </div>
         </form>
       </div>
 
       <div class="card">
+        <div class="card-head">
+          <div class="card-title sleep">${icon('moon')} Bedtime</div>
+        </div>
+        <form id="bed-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="bed-date">Date you went to bed</label>
+              <input class="input" type="date" id="bed-date" value="${today}" required />
+            </div>
+            <div class="field">
+              <label for="sleep-bed">Bedtime</label>
+              <input class="input" type="time" id="sleep-bed" value="${escapeHtml(tonightLog.bed || '')}" required />
+            </div>
+          </div>
+          <p class="tiny faint mt-3">Tonight's bedtime joins tomorrow's wake-up. You can save either time first.</p>
+          <div class="row wrap mt-4">
+            <button class="btn btn-primary" type="submit">${icon('check')} Save bedtime</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
         <div class="card-head">
           <div class="card-title sleep">${icon('target')} Your targets</div>
           <span class="card-hint">Saved automatically</span>
@@ -228,13 +244,12 @@ export function render(root) {
           ${badge('16–45 min away', 'amber')}
           ${badge('Over 45 min away', 'red')}
         </div>
-      </div>
     </div>
 
     <div class="card">
       <div class="card-head">
         <div class="card-title data">${icon('calendar')} Sleep history</div>
-        <span class="card-hint">${sortedLogs.length} night${sortedLogs.length === 1 ? '' : 's'} logged</span>
+        <span class="card-hint">${sortedLogs.length} night${sortedLogs.length === 1 ? '' : 's'} logged · dated by wake-up</span>
       </div>
       ${
         sortedLogs.length
@@ -249,7 +264,7 @@ export function render(root) {
                 <div class="list-item">
                   <button class="grow" data-edit="${date}" style="background:none;border:0;padding:0;text-align:left;color:inherit;cursor:pointer">
                     <div class="spread" style="justify-content:flex-start;gap:10px;flex-wrap:wrap">
-                      <div class="list-title">${escapeHtml(relativeDay(date))}</div>
+                      <div class="list-title">${date === tomorrow && log.bed && !log.wake ? 'Tonight → tomorrow' : escapeHtml(relativeDay(date))}</div>
                       ${wd ? badge(wd.label, wd.tone) : ''}
                       ${bd ? badge(`bed ${bd.label}`, bd.tone) : ''}
                     </div>
@@ -306,27 +321,48 @@ export function render(root) {
   const form = $('#sleep-form');
   const dateInput = $('#sleep-date');
   const wakeInput = $('#sleep-wake');
+  const bedForm = $('#bed-form');
+  const bedDateInput = $('#bed-date');
   const bedInput = $('#sleep-bed');
   const noteInput = $('#sleep-note');
 
   dateInput.addEventListener('change', () => {
     const log = getState().sleepLogs[dateInput.value];
-    wakeInput.value = (log && log.wake) || getState().settings.wakeTarget;
-    bedInput.value = (log && log.bed) || getState().settings.bedTarget;
+    wakeInput.value = (log && log.wake) || '';
     noteInput.value = (log && log.note) || '';
+  });
+
+  bedDateInput.addEventListener('change', () => {
+    if (!bedDateInput.value) {
+      bedInput.value = '';
+      return;
+    }
+    const wakeDate = isoDate(addDays(parseISO(bedDateInput.value), 1));
+    bedInput.value = getState().sleepLogs[wakeDate]?.bed || '';
   });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const date = dateInput.value;
     const wake = wakeInput.value;
-    const bed = bedInput.value;
     const note = noteInput.value.trim();
-    if (!date || !wake || !bed) return;
+    if (!date || !wake) return;
     update((s) => {
-      s.sleepLogs[date] = { wake, bed, note };
+      s.sleepLogs[date] = { ...(s.sleepLogs[date] || {}), wake, note };
     });
-    toast('Night saved');
+    toast('Wake-up saved');
+  });
+
+  bedForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const bedDate = bedDateInput.value;
+    const bed = bedInput.value;
+    if (!bedDate || !bed) return;
+    const wakeDate = isoDate(addDays(parseISO(bedDate), 1));
+    update((s) => {
+      s.sleepLogs[wakeDate] = { ...(s.sleepLogs[wakeDate] || {}), bed };
+    });
+    toast('Bedtime saved');
   });
 
   /* history actions */
@@ -377,11 +413,11 @@ function openEditor(date) {
       <div class="form-grid">
         <div class="field">
           <label>Wake time</label>
-          <input class="input" type="time" name="wake" value="${escapeHtml(log.wake || '')}" required />
+          <input class="input" type="time" name="wake" value="${escapeHtml(log.wake || '')}" />
         </div>
         <div class="field">
           <label>Bedtime</label>
-          <input class="input" type="time" name="bed" value="${escapeHtml(log.bed || '')}" required />
+          <input class="input" type="time" name="bed" value="${escapeHtml(log.bed || '')}" />
         </div>
       </div>
       <div class="field">
@@ -391,6 +427,10 @@ function openEditor(date) {
     submitText: 'Save changes',
     extraHtml: `<button type="button" class="btn btn-danger" data-del>${icon('trash')} Delete</button>`,
     onSubmit: (data) => {
+      if (!data.wake && !data.bed) {
+        toast('Add a wake time or bedtime, or delete the night');
+        return false;
+      }
       update((s) => {
         s.sleepLogs[date] = {
           wake: data.wake,
