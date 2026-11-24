@@ -107,7 +107,7 @@
   .appearance-label { display: none; }
 }
 
-/* The quick-entry sheet borrows the engraved curves from the Élan mark. */
+/* Expanded day notes */
 .day-preview small {
   font: 650 10px/1.5 var(--font); letter-spacing: .15em; text-transform: uppercase; color: #e8c991;
 }
@@ -190,4 +190,73 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .atlas-day { transition: background-color .15s, border-color .15s; }
+}
+
+/* Illustrated field guide. Each chapter uses a different plate from the
+   same local print; the mask reserves a quiet column behind the headline. */
+.poster-today { --landscape: url('../icons/landscapes.svg#dawn'); }
+.poster-plan { --landscape: url('../icons/landscapes.svg#paths'); }
+.poster-sport { --landscape: url('../icons/landscapes.svg#summit'); }
+.poster-stretch { --landscape: url('../icons/landscapes.svg#meadow'); }
+.poster-sleep { --landscape: url('../icons/landscapes.svg#night'); }
+.poster-weight { --landscape: url('../icons/landscapes.svg#terraces'); }
+.main .view .poster::after {
+  inset: 0 0 0 15%; background: var(--landscape) right center / cover no-repeat;
+  opacity: .68; border: 0; border-radius: 0; pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #0005 28%, #000 65%);
+}
+.view .poster-stats {
+  background: #081813b8; border: 1px solid #faf0d52e;
+  border-radius: 12px; padding: 14px 16px; gap: 12px;
+}
+.view .poster-stat b { font-variant-numeric: tabular-nums; }
+.atlas-plate {
+  margin: 20px 0; padding: clamp(18px,3vw,30px);
+  border-radius: 22px; border: 1px solid #567865;
+  background: radial-gradient(ellipse at top right,#304e40,#18332b 70%);
+  box-shadow: var(--shadow-soft);
+}
+.atlas-plate .day-preview:not([hidden]) { margin-top: 12px; }
+.atlas-plate header { padding-bottom: 12px; border-bottom: 1px solid #f1ecd131; }
+.atlas-plate h2 { font-size: clamp(24px,3vw,34px); }
+.atlas-plate .atlas-labels { color: #e4e9de; }
+.atlas-plate .atlas-day:not([aria-current]) { border-color:#d5e4d51c; }
+.atlas-plate .atlas-day[aria-expanded="true"] { box-shadow: inset 0 -3px #d4bd82; }
+.view .dash-grid .card { --card-ink: #486f5a; }
+.view .dash-grid .sleep-card { --card-ink: #58788d; }
+.view .dash-grid .train-card { --card-ink: #95664c; }
+.view .dash-grid .week-mini { --card-ink: #847345; }
+.view .dash-grid .card-head {
+  border-image: linear-gradient(to right,var(--card-ink) 2rem,var(--rule) 2rem) 1;
+}
+.view .dash-grid .card-title svg {
+  background: color-mix(in srgb,var(--card-ink) 14%,var(--paper));
+  color: color-mix(in srgb,var(--card-ink) 60%,var(--heading-ink));
+}
+@media (min-width:960px) {
+  .shell .sidebar {
+    background: linear-gradient(157deg,#203e34,#112d25 55%,#0d231d);
+    color:#f7f1df;
+    --text:#f7f1df; --muted:#c2d3c8; --faint:#acc1b3; --rule:#476355;
+    --accent:#c1e6ce; --surface:#233e32; --surface-3:#3b5849; --border:#496354;
+    --green:#a5d6ae;
+    overflow-y:auto;
+  }
+  .shell .sidebar .nav-item.active {
+    background:#d2e9cc19; color:#f4eedb; box-shadow: inset 3px 0 #d9be86;
+  }
+  .shell .sidebar .brand-sub { letter-spacing:.14em; }
+  .shell .sidebar .side-program { background:#ffffff09; box-shadow:none; }
+  .shell .sidebar .sidebar-foot .btn { color:#d3e4d6; background:#ffffff0c; border-color:#587060; }
+}
+@media (max-width:700px) {
+  .main .view .poster::after {
+    inset:0; background-size:auto 80%; background-position:right top;
+    opacity:.53; mask-image:linear-gradient(145deg,transparent,#0008 35%,#000 75%);
+  }
+  .main :is(.poster-sleep,.poster-duo,.poster-today):not(.poster-launch) .poster-stats {
+    padding:10px 8px; border:1px solid #faf0d526;
+  }
+  .view .poster-stats { padding:10px; }
+  .atlas-plate { padding:16px 12px; }
 }

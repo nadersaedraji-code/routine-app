@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261124092833';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261124092833';
-import { initCharts, destroyCharts } from './charts.js?v=20261124092833';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261124092833';
+import { api } from './api.js?v=20261124204157';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261124204157';
+import { initCharts, destroyCharts } from './charts.js?v=20261124204157';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261124204157';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261124092833';
-import { render as renderToday } from './views/today.js?v=20261124092833';
-import { render as renderSleep } from './views/sleep.js?v=20261124092833';
-import { render as renderPlan } from './views/plan.js?v=20261124092833';
-import { render as renderSport } from './views/sport.js?v=20261124092833';
-import { render as renderStretch } from './views/stretch.js?v=20261124092833';
+} from './program.js?v=20261124204157';
+import { render as renderToday } from './views/today.js?v=20261124204157';
+import { render as renderSleep } from './views/sleep.js?v=20261124204157';
+import { render as renderPlan } from './views/plan.js?v=20261124204157';
+import { render as renderSport } from './views/sport.js?v=20261124204157';
+import { render as renderStretch } from './views/stretch.js?v=20261124204157';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -80,7 +80,7 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261124092833" alt="" width="24" height="24" /> Better <span id="section-label"></span></span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261124204157" alt="" width="24" height="24" /> Better <span id="section-label"></span></span>
           <span class="masthead-tools">
             <span id="masthead-note"></span>
             <label class="theme-control">
