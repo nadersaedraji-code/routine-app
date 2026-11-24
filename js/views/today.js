@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261124070442';
+import { getState, update } from '../store.js?v=20261124090940';
 import {
   $,
   $$,
@@ -19,7 +19,7 @@ import {
   activityRings,
   animateDash,
   badge,
-} from '../ui.js?v=20261124070442';
+} from '../ui.js?v=20261124090940';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -28,7 +28,7 @@ import {
   todayIndexInWeek,
   programStartsIn,
   programStartKey,
-} from '../program.js?v=20261124070442';
+} from '../program.js?v=20261124090940';
 
 function launchDial(startDate, upcoming) {
   return `<div class="poster-art launch-art">
@@ -175,16 +175,17 @@ export function render(root) {
             const title = `${fmtDate(date, 'full')} — ${
               dayPlan.length ? dayPlan.map((s) => s.title).join(', ') : i === 0 && weekNum === 1 ? 'Program start' : 'No sessions'
             }`;
-            return `<div class="pw-day ${i === todayIndex ? 'today' : ''} ${
+            return `<button type="button" data-preview-day="${i}" aria-controls="day-preview" aria-expanded="false" aria-label="${escapeHtml(fmtDate(date, 'full'))}: view plan" class="pw-day ${i === todayIndex ? 'today' : ''} ${
               done ? 'done' : ''
             } ${has ? 'has' : ''} ${
               preStart && i === 0 ? 'upcoming' : ''
             }" title="${escapeHtml(title)}"><span>${escapeHtml(
                fmtDate(date, 'day')
-             )}</span><b>${Number(date.slice(-2))}</b><i></i></div>`;
+             )}</span><b>${Number(date.slice(-2))}</b><i></i></button>`;
           })
           .join('')}
       </div>
+      <div id="day-preview" class="day-preview" hidden></div>
     </section>
 
     <div class="section-heading"><h2>Daily check-in</h2></div>
@@ -353,6 +354,20 @@ export function render(root) {
       </div>
     </div>
   `;
+
+  const preview = $('#day-preview', root);
+  const selectors = $$('[data-preview-day]', root);
+  selectors.forEach((button) => button.addEventListener('click', () => {
+    const show = button.getAttribute('aria-expanded') !== 'true';
+    selectors.forEach((el) => el.setAttribute('aria-expanded', String(show && el === button)));
+    preview.hidden = !show;
+    if (!show) return;
+    const i = Number(button.dataset.previewDay);
+    const sessions = plan.filter((session) => Number(session.day) === i);
+    preview.innerHTML = `<div><small>Day ${i + 1} / ${escapeHtml(fmtDate(days[i], 'day'))}</small>
+      ${sessions.length ? `<ul>${sessions.map((s) => `<li>${icon(s.done ? 'check' : 'calendar')}${escapeHtml(s.title)}</li>`).join('')}</ul>` : '<p>No sessions planned.</p>'}</div>
+      <a href="#/plan">Open plan →</a>`;
+  }));
 
   /* sessions */
   $$('[data-session]', root).forEach((btn) => {
