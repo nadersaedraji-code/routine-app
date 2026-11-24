@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261124204157';
+import { getState, update } from '../store.js?v=20261124205838';
 import {
   $,
   $$,
@@ -19,7 +19,7 @@ import {
   activityRings,
   animateDash,
   badge,
-} from '../ui.js?v=20261124204157';
+} from '../ui.js?v=20261124205838';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -28,7 +28,7 @@ import {
   todayIndexInWeek,
   programStartsIn,
   programStartKey,
-} from '../program.js?v=20261124204157';
+} from '../program.js?v=20261124205838';
 
 function launchDial(startDate, upcoming) {
   return `<div class="poster-art launch-art">
@@ -173,6 +173,24 @@ export function render(root) {
         }</span></div>
         <div class="poster-stat"><b>${sleepMinutes != null ? fmtDuration(sleepMinutes) : '—'}</b><span>Last night’s sleep</span></div>
       </div>
+      <section class="week-atlas" aria-labelledby="atlas-title">
+        <header><h2 id="atlas-title">Week in view</h2><span>Tap a day to explore</span></header>
+        <div class="atlas-grid">
+        <div class="atlas-labels" aria-hidden="true"><span></span><span>Plan</span><span>Exercise</span><span>Mobility</span><span>Sleep</span></div>
+        ${days
+          .map((date, i) => {
+            const d = daysLogged[i];
+            const marks = [d.sessions.length, d.exercises.length, d.stretch || d.core, d.sleep.wake || d.sleep.bed];
+            return `<button type="button" class="atlas-day" data-date="${date}" data-preview-day="${i}"
+              aria-controls="day-preview" aria-expanded="false" ${date === today ? 'aria-current="date"' : ''}
+              aria-label="${escapeHtml(fmtDate(date, 'full'))}: explore activity">
+              <span class="atlas-date"><small>${escapeHtml(fmtDate(date,'day').slice(0,2))}</small><b>${Number(date.slice(-2))}</b></span>
+              ${marks.map((value,j) => `<i aria-hidden="true" class="mark-${j} ${value ? 'marked' : ''}"></i>`).join('')}</button>`;
+          })
+          .join('')}
+        </div>
+      </section>
+      <div id="day-preview" class="day-preview" hidden></div>
     </section>
 
     <div class="section-heading"><h2>Daily check-in</h2></div>
@@ -322,25 +340,6 @@ export function render(root) {
         </div>
       </div>
     </div>
-
-    <section class="week-atlas atlas-plate" aria-labelledby="atlas-title">
-        <header><h2 id="atlas-title">Week in view</h2><span>Tap a day to explore</span></header>
-        <div class="atlas-grid">
-        <div class="atlas-labels" aria-hidden="true"><span></span><span>Plan</span><span>Exercise</span><span>Mobility</span><span>Sleep</span></div>
-        ${days
-          .map((date, i) => {
-            const d = daysLogged[i];
-            const marks = [d.sessions.length, d.exercises.length, d.stretch || d.core, d.sleep.wake || d.sleep.bed];
-            return `<button type="button" class="atlas-day" data-date="${date}" data-preview-day="${i}"
-              aria-controls="day-preview" aria-expanded="false" ${date === today ? 'aria-current="date"' : ''}
-              aria-label="${escapeHtml(fmtDate(date, 'full'))}: explore activity">
-              <span class="atlas-date"><small>${escapeHtml(fmtDate(date,'day').slice(0,2))}</small><b>${Number(date.slice(-2))}</b></span>
-              ${marks.map((value,j) => `<i aria-hidden="true" class="mark-${j} ${value ? 'marked' : ''}"></i>`).join('')}</button>`;
-          })
-          .join('')}
-        </div>
-      <div id="day-preview" class="day-preview" hidden></div>
-    </section>
 
     <div class="card data-card">
       <div class="card-ghost">${icon('download')}</div>
