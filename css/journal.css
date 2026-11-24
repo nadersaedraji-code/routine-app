@@ -108,39 +108,9 @@
 }
 
 /* The quick-entry sheet borrows the engraved curves from the Élan mark. */
-.entry-trigger {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 44px; padding: 0 14px; border-radius: 24px; border: 0;
-  background: var(--heading-ink); color: var(--paper);
-  font: 650 12px/1 var(--font);
-}
-.entry-trigger svg { width: 17px; height: 17px; }
-#entry-sheet {
-  padding: 0; width: min(440px, calc(100% - 24px)); max-height: 85dvh;
-  border: 1px solid var(--rule); border-radius: 24px;
-  color: var(--text); background: var(--paper); box-shadow: 0 24px 80px #06181055;
-}
-#entry-sheet::backdrop { background: #05130fd1; backdrop-filter: blur(4px); }
-.entry-cover {
-  position: relative; padding: 25px;
-  background: url('../icons/orbit-field.svg') right center / cover, linear-gradient(115deg,#0c251e,#335b46);
-  color: #faf3dc;
-}
-.entry-overline, .day-preview small {
+.day-preview small {
   font: 650 10px/1.5 var(--font); letter-spacing: .15em; text-transform: uppercase; color: #e8c991;
 }
-.entry-cover h2 { font: 400 44px/1.12 var(--serif); letter-spacing: -.05em; margin: 8px 0 0; }
-.entry-cover h2 em { color: #e8c991; }
-.entry-cover .icon-btn { position: absolute; top: 14px; right: 14px; color: #fff; background: #ffffff15; }
-.entry-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; padding: 15px; }
-.entry-grid button {
-  text-align: left; display: grid; justify-items: start; padding: 14px;
-  border: 1px solid var(--rule); border-radius: 15px; background: var(--surface-2);
-}
-.entry-grid svg { color: var(--binding); width: 21px; height: 21px; margin-bottom: 12px; }
-.entry-grid small { color: var(--muted); font-size: 11px; }
-.entry-grid strong { color: var(--heading-ink); font: 500 20px/1.25 var(--serif); }
-.entry-grid button:is(:hover,:focus-visible) { border-color: var(--binding); background: var(--accent-soft); }
 .view .poster-today button.pw-day { min-height: 44px; color: inherit; }
 .view .poster-today button.pw-day[aria-expanded="true"] { outline: 2px solid #f3d89c; outline-offset: -2px; }
 .day-preview:not([hidden]) {
@@ -172,17 +142,12 @@
   .shell .tabbar .tab { min-height: 44px; justify-content: center; }
   .shell .main { padding-bottom: calc(94px + env(safe-area-inset-bottom)); }
 }
-@media (max-width: 700px) {
-  .entry-trigger { width: 44px; padding: 0; }
-  .entry-trigger span,.appearance-label { display: none; }
-  #entry-sheet { margin: auto auto max(8px,env(safe-area-inset-bottom)); }
-}
 @media (prefers-reduced-motion: no-preference) {
-  #entry-sheet[open],.day-preview:not([hidden]) { animation: entry-in .2s ease-out both; }
-  .entry-grid button,.entry-trigger,.tabbar .tab svg,.poster-today button.pw-day {
+  .day-preview:not([hidden]) { animation: entry-in .2s ease-out both; }
+  .tabbar .tab svg,.poster-today button.pw-day {
     transition: transform .18s ease, background-color .18s ease, border-color .18s ease;
   }
-  .entry-grid button:active,.entry-trigger:active,.poster-today button.pw-day:active { transform: scale(.97); }
+  .poster-today button.pw-day:active { transform: scale(.97); }
   .tabbar .tab.active svg { transform: translateY(-1px); }
   @keyframes entry-in { from { opacity: 0; transform: translateY(8px); } }
 }

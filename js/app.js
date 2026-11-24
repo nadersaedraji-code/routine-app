@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261124092540';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261124092540';
-import { initCharts, destroyCharts } from './charts.js?v=20261124092540';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261124092540';
+import { api } from './api.js?v=20261124092833';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261124092833';
+import { initCharts, destroyCharts } from './charts.js?v=20261124092833';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261124092833';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261124092540';
-import { render as renderToday } from './views/today.js?v=20261124092540';
-import { render as renderSleep } from './views/sleep.js?v=20261124092540';
-import { render as renderPlan } from './views/plan.js?v=20261124092540';
-import { render as renderSport } from './views/sport.js?v=20261124092540';
-import { render as renderStretch } from './views/stretch.js?v=20261124092540';
+} from './program.js?v=20261124092833';
+import { render as renderToday } from './views/today.js?v=20261124092833';
+import { render as renderSleep } from './views/sleep.js?v=20261124092833';
+import { render as renderPlan } from './views/plan.js?v=20261124092833';
+import { render as renderSport } from './views/sport.js?v=20261124092833';
+import { render as renderStretch } from './views/stretch.js?v=20261124092833';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -34,25 +34,6 @@ const VIEWS = {
 let lastRouteKey = null;
 let renderedDate = null;
 let routeTimer = null;
-const shortcuts = [
-  ['sunrise', 'Wake-up', 'Morning', 'sleep', '#sleep-wake'],
-  ['moon', 'Bedtime', 'Evening', 'sleep', '#sleep-bed'],
-  ['scale', 'Weigh-in', 'Body weight', 'sport/weight', '#weight-value'],
-  ['calendar', 'Plan a session', 'Weekly plan', 'plan', '#add-session'],
-  ['dumbbell', 'Exercise', 'Training roster', 'sport', '#sport-content'],
-  ['stretch', 'Stretch & core', 'Daily check-in', 'stretch', '.track-grid'],
-];
-let pendingShortcut = null;
-
-function followShortcut(action) {
-  const target = document.querySelector(`#view ${action[4]}`);
-  if (!target) return;
-  if (action[4] === '#add-session') return target.click();
-  if (!target.matches('input,button')) target.tabIndex = -1;
-  target.focus({ preventScroll: true });
-  target.scrollIntoView({ block: 'center', behavior: 'instant' });
-}
-
 function parseHash() {
   const raw = location.hash.replace(/^#\/?/, '');
   const clean = raw.split('?')[0];
@@ -99,10 +80,9 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261124092540" alt="" width="24" height="24" /> Better <span id="section-label"></span></span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261124092833" alt="" width="24" height="24" /> Better <span id="section-label"></span></span>
           <span class="masthead-tools">
             <span id="masthead-note"></span>
-            <button class="entry-trigger" type="button" aria-haspopup="dialog" aria-label="Quick entry" title="Quick entry (Alt+J)">${icon('plus')}<span>Quick entry</span></button>
             <label class="theme-control">
               <span class="appearance-label">Appearance</span>
               <select id="theme-mode" aria-label="Appearance">
@@ -124,31 +104,8 @@ function buildShell() {
           </a>`
         ).join('')}
       </nav>
-      <dialog id="entry-sheet" aria-labelledby="entry-title">
-        <div class="entry-cover">
-          <span class="entry-overline">Better / Field notes</span>
-          <h2 id="entry-title">Quick <em>entry.</em></h2>
-          <button class="icon-btn" data-dismiss aria-label="Close quick entry">${icon('x')}</button>
-        </div>
-        <div class="entry-grid">${shortcuts.map(([symbol, title, group], i) => `
-          <button type="button" data-shortcut="${i}">
-            ${icon(symbol)}<small>${group}</small><strong>${title}</strong>
-          </button>`).join('')}</div>
-      </dialog>
     </div>`;
-  const sheet = $('#entry-sheet');
-  const trigger = $('.entry-trigger');
-  trigger.onclick = () => sheet.showModal();
-  sheet.onclick = (event) => {
-    const item = event.target.closest('[data-shortcut]');
-    if (!item && !event.target.closest('[data-dismiss]') && event.target !== sheet) return;
-    sheet.close();
-    if (!item) return;
-    const action = shortcuts[Number(item.dataset.shortcut)];
-    const hash = `#/${action[3]}`;
-    if (location.hash === hash) followShortcut(action);
-    else { pendingShortcut = action; location.hash = hash; }
-  };
+
 }
 
 function updateNav(name) {
@@ -263,12 +220,6 @@ function renderRoute() {
 
   lastRouteKey = key;
   requestAnimationFrame(() => {
-    if (pendingShortcut && location.hash === `#/${pendingShortcut[3]}`) {
-      const action = pendingShortcut;
-      pendingShortcut = null;
-      followShortcut(action);
-      return;
-    }
     window.scrollTo(0, sameRoute ? scrollY : 0);
   });
 }
@@ -318,14 +269,6 @@ async function copyCloudKey() {
 function installGlobalActions() {
   if (globalActionsReady) return;
   globalActionsReady = true;
-  document.addEventListener('keydown', (event) => {
-    if (event.code === 'KeyJ' && event.altKey && !event.repeat &&
-        !document.querySelector('dialog[open], .modal-backdrop') &&
-        !event.target.closest('input,textarea,select,[contenteditable="true"]')) {
-      event.preventDefault();
-      $('.entry-trigger')?.click();
-    }
-  });
   document.addEventListener('click', (event) => {
     const exportTrigger = event.target.closest('[data-export]');
     if (exportTrigger) {
