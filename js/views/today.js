@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261124090940';
+import { getState, update } from '../store.js?v=20261124092540';
 import {
   $,
   $$,
@@ -19,7 +19,7 @@ import {
   activityRings,
   animateDash,
   badge,
-} from '../ui.js?v=20261124090940';
+} from '../ui.js?v=20261124092540';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -28,7 +28,7 @@ import {
   todayIndexInWeek,
   programStartsIn,
   programStartKey,
-} from '../program.js?v=20261124090940';
+} from '../program.js?v=20261124092540';
 
 function launchDial(startDate, upcoming) {
   return `<div class="poster-art launch-art">
@@ -85,6 +85,15 @@ export function render(root) {
 
   const stretchTarget = Math.max(1, Number(state.settings.stretchPerWeek) || 3);
   const weekSet = new Set(days);
+  const daysLogged = days.map((date, i) => ({
+    sessions: plan.filter((s) => Number(s.day) === i),
+    exercises: state.exerciseLogs.filter((l) => l.date === date),
+    stretch: state.stretchLogs.some((l) => l.date === date),
+    core: state.coreLogs.some((l) => l.date === date),
+    sleep: state.sleepLogs[date] || {},
+  }));
+  const exerciseCount = daysLogged.reduce((n, day) => n + day.exercises.length, 0);
+  const previousDay = root.querySelector('[data-preview-day][aria-expanded="true"]')?.dataset.date;
   const stretchCount = state.stretchLogs.filter((l) => weekSet.has(l.date)).length;
   const stretchedToday = state.stretchLogs.some((l) => l.date === today);
   const coreDoneToday = state.coreLogs?.some((l) => l.date === today);
@@ -154,37 +163,33 @@ export function render(root) {
            label: 'Progress',
            size: window.innerWidth < 640 ? 140 : 220,
         })}
-        <div class="dial-caption"><span>Training</span><span>Today</span><span>Stretch</span></div>
+        <div class="dial-caption"><span>Plan</span><span>Today</span><span>Stretch</span></div>
       </div>`}
       <div class="poster-stats">
-        <div class="poster-stat"><b>${plannedSessions ? `${doneSessions}<em>/${plannedSessions}</em>` : '—'}</b><span>${
-          preStart ? `Training · Week ${weekNum}` : 'Training this week'
-        }</span></div>
+        <div class="poster-stat"><b>${exerciseCount}</b><span>Exercises logged this week</span></div>
         <div class="poster-stat"><b>${todaySessions.length ? `${doneToday}<em>/${todaySessions.length}</em>` : '—'}</b><span>Today’s sessions</span></div>
         <div class="poster-stat"><b>${stretchCount}<em>/${stretchTarget}</em></b><span>${
           preStart ? `Stretch · Week ${weekNum}` : 'Stretch this week'
         }</span></div>
         <div class="poster-stat"><b>${sleepMinutes != null ? fmtDuration(sleepMinutes) : '—'}</b><span>Last night’s sleep</span></div>
       </div>
-      <div class="poster-week">
+      <section class="week-atlas" aria-labelledby="atlas-title">
+        <header><h2 id="atlas-title">Week in view</h2><span>Tap a day to explore</span></header>
+        <div class="atlas-grid">
+        <div class="atlas-labels" aria-hidden="true"><span></span><span>Plan</span><span>Exercise</span><span>Mobility</span><span>Sleep</span></div>
         ${days
           .map((date, i) => {
-            const dayPlan = plan.filter((s) => Number(s.day) === i);
-            const done = dayPlan.length > 0 && dayPlan.every((s) => s.done);
-            const has = dayPlan.length > 0;
-            const title = `${fmtDate(date, 'full')} — ${
-              dayPlan.length ? dayPlan.map((s) => s.title).join(', ') : i === 0 && weekNum === 1 ? 'Program start' : 'No sessions'
-            }`;
-            return `<button type="button" data-preview-day="${i}" aria-controls="day-preview" aria-expanded="false" aria-label="${escapeHtml(fmtDate(date, 'full'))}: view plan" class="pw-day ${i === todayIndex ? 'today' : ''} ${
-              done ? 'done' : ''
-            } ${has ? 'has' : ''} ${
-              preStart && i === 0 ? 'upcoming' : ''
-            }" title="${escapeHtml(title)}"><span>${escapeHtml(
-               fmtDate(date, 'day')
-             )}</span><b>${Number(date.slice(-2))}</b><i></i></button>`;
+            const d = daysLogged[i];
+            const marks = [d.sessions.length, d.exercises.length, d.stretch || d.core, d.sleep.wake || d.sleep.bed];
+            return `<button type="button" class="atlas-day" data-date="${date}" data-preview-day="${i}"
+              aria-controls="day-preview" aria-expanded="false" ${date === today ? 'aria-current="date"' : ''}
+              aria-label="${escapeHtml(fmtDate(date, 'full'))}: explore activity">
+              <span class="atlas-date"><small>${escapeHtml(fmtDate(date,'day').slice(0,2))}</small><b>${Number(date.slice(-2))}</b></span>
+              ${marks.map((value,j) => `<i aria-hidden="true" class="mark-${j} ${value ? 'marked' : ''}"></i>`).join('')}</button>`;
           })
           .join('')}
-      </div>
+        </div>
+      </section>
       <div id="day-preview" class="day-preview" hidden></div>
     </section>
 
@@ -363,11 +368,18 @@ export function render(root) {
     preview.hidden = !show;
     if (!show) return;
     const i = Number(button.dataset.previewDay);
-    const sessions = plan.filter((session) => Number(session.day) === i);
-    preview.innerHTML = `<div><small>Day ${i + 1} / ${escapeHtml(fmtDate(days[i], 'day'))}</small>
-      ${sessions.length ? `<ul>${sessions.map((s) => `<li>${icon(s.done ? 'check' : 'calendar')}${escapeHtml(s.title)}</li>`).join('')}</ul>` : '<p>No sessions planned.</p>'}</div>
+    const {sessions, exercises, stretch, core, sleep} = daysLogged[i];
+    const items = [
+      ...sessions.map((s) => [s.done ? 'check' : 'calendar', `${s.done ? 'Completed' : 'Planned'} · ${s.title}`]),
+      ...exercises.map((l) => ['dumbbell', state.exercises.find((e) => e.id === l.exerciseId)?.name || 'Exercise entry']),
+      ...(stretch ? [['stretch','Stretch logged']] : []), ...(core ? [['check','Core logged']] : []),
+      ...(sleep.bed ? [['moon',`Bedtime · ${sleep.bed}`]] : []), ...(sleep.wake ? [['sunrise',`Wake-up · ${sleep.wake}`]] : []),
+    ];
+    preview.innerHTML = `<div><small>${escapeHtml(fmtDate(days[i], 'full'))}</small>
+      ${items.length ? `<ul>${items.map(([symbol,text]) => `<li>${icon(symbol)}${escapeHtml(text)}</li>`).join('')}</ul>` : '<p>No plans or entries for this day.</p>'}</div>
       <a href="#/plan">Open plan →</a>`;
   }));
+  selectors.find((button) => button.dataset.date === previousDay)?.click();
 
   /* sessions */
   $$('[data-session]', root).forEach((btn) => {

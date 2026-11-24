@@ -186,3 +186,43 @@
   .tabbar .tab.active svg { transform: translateY(-1px); }
   @keyframes entry-in { from { opacity: 0; transform: translateY(8px); } }
 }
+
+/* Seven daily columns, four independent measures. Filled marks mean present,
+   rather than a score: a rest day is not a failed goal. */
+.week-atlas {
+  grid-column: 1/-1;
+  color: #f3efde;
+  padding-top: 16px;
+  border-top: 1px solid #e6e1c633;
+}
+.week-atlas header { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.week-atlas h2 { font: 400 23px/1.2 var(--serif); letter-spacing:-.035em; }
+.week-atlas header > span,.atlas-labels { color:#c2cfc4; font: 500 11px/1.2 var(--font); }
+.atlas-grid {
+  display:grid; grid-template-columns: minmax(49px,.85fr) repeat(7,minmax(0,1fr));
+  gap:3px; margin-top:12px;
+}
+.atlas-labels,.atlas-day { display:grid; grid-template-rows:36px repeat(4,15px); align-items:center; }
+.atlas-day {
+  justify-items:center; border-radius:10px; padding:3px 0;
+  border:1px solid transparent; background:#ecffe806; color:#eaf1e9;
+}
+.atlas-day[aria-current="date"] { background:#eee0ae16; border-color:#e5cd885c; }
+.atlas-day:is(:hover,[aria-expanded="true"],:focus-visible) { background:#d2efda22; border-color:#b6dbc2; }
+.atlas-date { display:grid; gap:1px; line-height:1; }
+.atlas-date small { font-size:9px; text-transform:uppercase; letter-spacing:.07em; }
+.atlas-date b { font:500 17px/1 var(--serif); }
+.atlas-day i { width:5px; height:5px; border:1px solid #dae9d64d; border-radius:100%; }
+.atlas-day .marked { width:15px; height:6px; background:var(--signal); border-color:var(--signal); border-radius:4px; }
+.mark-0 { --signal:#ebcd8b; } .mark-1 { --signal:#eaac90; }
+.mark-2 { --signal:#a0d7b0; } .mark-3 { --signal:#a5c8e8; }
+.atlas-labels { padding:4px 0; }
+.day-preview:not([hidden]) { align-items:flex-start; }
+.day-preview li { padding-block:3px; }
+@media (min-width: 701px) {
+  .atlas-date { display:flex; align-items:baseline; gap:6px; }
+  .atlas-grid { gap:6px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .atlas-day { transition: background-color .15s, border-color .15s; }
+}
