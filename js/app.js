@@ -1,19 +1,19 @@
-import { api } from './api.js?v=20261123140135';
-import { initStore, getState, subscribe, startSync } from './store.js?v=20261123140135';
-import { initCharts, destroyCharts } from './charts.js?v=20261123140135';
-import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261123140135';
+import { api } from './api.js?v=20261124070442';
+import { initStore, getState, subscribe, startSync } from './store.js?v=20261124070442';
+import { initCharts, destroyCharts } from './charts.js?v=20261124070442';
+import { $, $$, icon, escapeHtml, fmtDate, todayISO, toast } from './ui.js?v=20261124070442';
 import {
   currentWeekKey,
   weekDaysForKey,
   weekLabelForKey,
   todayIndexInWeek,
   programStartsIn,
-} from './program.js?v=20261123140135';
-import { render as renderToday } from './views/today.js?v=20261123140135';
-import { render as renderSleep } from './views/sleep.js?v=20261123140135';
-import { render as renderPlan } from './views/plan.js?v=20261123140135';
-import { render as renderSport } from './views/sport.js?v=20261123140135';
-import { render as renderStretch } from './views/stretch.js?v=20261123140135';
+} from './program.js?v=20261124070442';
+import { render as renderToday } from './views/today.js?v=20261124070442';
+import { render as renderSleep } from './views/sleep.js?v=20261124070442';
+import { render as renderPlan } from './views/plan.js?v=20261124070442';
+import { render as renderSport } from './views/sport.js?v=20261124070442';
+import { render as renderStretch } from './views/stretch.js?v=20261124070442';
 
 const NAV = [
   { name: 'today', label: 'Today', icon: 'today', href: '#/today', title: 'Today' },
@@ -81,11 +81,11 @@ function buildShell() {
 
       <main class="main">
         <header class="daily-masthead">
-          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261123140135" alt="" width="24" height="24" /> Better</span>
+          <span class="masthead-brand"><img src="./icons/icon.svg?v=20261124070442" alt="" width="24" height="24" /> Better <span id="section-label"></span></span>
           <span class="masthead-tools">
             <span id="masthead-note"></span>
             <label class="theme-control">
-              <span class="visually-hidden">Appearance</span>
+              <span class="appearance-label">Appearance</span>
               <select id="theme-mode" aria-label="Appearance">
                 <option value="system">System</option>
                 <option value="light">Light</option>
@@ -189,6 +189,8 @@ function renderRoute() {
   destroyCharts();
   updateNav(name);
   const navItem = NAV.find((n) => n.name === name);
+  document.documentElement.dataset.section = name;
+  $('#section-label').textContent = param === 'weight' && name === 'sport' ? 'Body weight' : navItem.label;
   document.title = navItem ? `${navItem.title} · Better` : 'Better';
   const note = $('#masthead-note');
   renderedDate = todayISO();

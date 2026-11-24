@@ -1,0 +1,108 @@
+/* Better journal: a shared frame, with a different binding colour per section. */
+:root {
+  --binding: #26705b;
+  --paper: #fffdf7;
+  --rule: #d6d8cb;
+  --heading-ink: #19372a;
+}
+:root[data-section="plan"] { --binding: #806026; }
+:root[data-section="sport"] { --binding: #984e3d; }
+:root[data-section="stretch"] { --binding: #426b49; }
+:root[data-section="sleep"] { --binding: #486887; }
+:root[data-theme="dark"] {
+  --binding: #99d4af;
+  --paper: #1b2929;
+  --rule: #394c46;
+  --heading-ink: #f3efdf;
+}
+:root[data-theme="dark"][data-section="plan"] { --binding: #e1c38c; }
+:root[data-theme="dark"][data-section="sport"] { --binding: #eeb29e; }
+:root[data-theme="dark"][data-section="stretch"] { --binding: #aad1a7; }
+:root[data-theme="dark"][data-section="sleep"] { --binding: #afcbe7; }
+
+.main > .daily-masthead {
+  max-width: 1040px;
+  margin-inline: auto;
+  gap: 10px;
+  border-bottom-color: var(--rule);
+}
+#section-label {
+  font: 600 11px/1.2 var(--font);
+  color: var(--binding);
+  letter-spacing: .025em;
+  border-left: 1px solid var(--rule);
+  padding-left: 10px;
+}
+.daily-masthead .theme-control {
+  align-items: center;
+  gap: 8px;
+  font: 500 12px/1 var(--font);
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.theme-control select { min-height: 40px; border-radius: 20px; }
+.daily-masthead #masthead-note { font: 500 12px var(--font); color: var(--muted); }
+.sidebar .brand { padding-bottom: 24px; margin-bottom: 15px; border-bottom: 1px solid var(--rule); }
+.sidebar .nav-item.active, .tabbar .tab.active {
+  color: var(--binding);
+  background: color-mix(in srgb, var(--binding) 13%, transparent);
+}
+.sidebar .nav-item.active { box-shadow: inset 3px 0 var(--binding); }
+.sidebar .nav-item.active svg { color: inherit; }
+.tabbar .tab { border-radius: 14px; margin-inline: 2px; }
+
+/* Give section titles, everyday entries and their actions distinct weights. */
+.view .card-title, .view .weight-panel h2, .modal .modal-title {
+  font: 500 clamp(19px, 2vw, 24px)/1.15 var(--serif);
+  letter-spacing: -.025em;
+  color: var(--heading-ink);
+}
+.view .card-head, .view .weight-panel-head {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 13px;
+  margin-bottom: 16px;
+}
+.view .card-title svg {
+  color: var(--binding);
+  background: color-mix(in srgb, var(--binding) 13%, transparent);
+  border-radius: 50%;
+}
+.view :is(.card, .exercise-card), .modal { border-radius: 19px; }
+.view .list-item { padding-block: 15px; }
+.view .list-title { font-weight: 600; }
+.view :is(.stat-value, .day-num, .weight-history-value), .session { font-variant-numeric: tabular-nums; }
+.view .session { border-inline-start: 3px solid var(--binding); }
+.view .session.done { border-inline-start-color: var(--green); }
+.view .day-col.is-today .day-name { color: var(--binding); font-weight: 700; }
+.view .field label, .modal .field label { font-weight: 600; }
+.modal .modal-head { border-bottom: 1px solid var(--rule); }
+.modal .modal-foot { border-top: 1px solid var(--rule); }
+.view .poster-kicker > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
+.view .poster-kicker > span:first-child::before {
+  content: ""; width: 21px; height: 2px; background: currentColor; opacity: .8;
+}
+:root:not([data-theme="dark"]) .view .card:not([class*="tint-"]):not(.track-card):not(.weight-panel):not(.weight-teaser) {
+  background-color: var(--paper);
+}
+@media (max-width: 700px) {
+  .daily-masthead .theme-control { gap: 5px; }
+  .theme-control select { min-height: 44px; }
+  .main .poster { padding: 20px 17px 16px; }
+  .view .card-head { padding-bottom: 11px; margin-bottom: 13px; }
+  .view .card-title { font-size: 20px; }
+  .view .dash-grid > .card { padding: 18px; }
+  .main :is(.poster-sleep, .poster-duo, .poster-today):not(.poster-launch) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  }
+  .main :is(.poster-sleep, .poster-duo, .poster-today):not(.poster-launch) .poster-art {
+    grid-area: 2 / 1; max-width: 100%; margin-inline: 0;
+  }
+  .main :is(.poster-sleep, .poster-duo, .poster-today):not(.poster-launch) .poster-stats {
+    grid-area: 2 / 2; grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 0; padding: 0; gap: 12px 8px;
+  }
+  .main .daily-dial .dial-caption { flex-wrap: wrap; justify-content: center; gap: 3px 7px; }
+}
+@media (max-width: 380px) {
+  .appearance-label { display: none; }
+}
