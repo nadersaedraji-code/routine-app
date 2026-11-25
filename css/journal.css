@@ -107,7 +107,7 @@
   .appearance-label { display: none; }
 }
 
-/* The quick-entry sheet borrows the engraved curves from the Élan mark. */
+/* Expanded day notes. */
 .day-preview small {
   font: 650 10px/1.5 var(--font); letter-spacing: .15em; text-transform: uppercase; color: #e8c991;
 }
@@ -190,4 +190,96 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .atlas-day { transition: background-color .15s, border-color .15s; }
+}
+
+/* Material finish: linen, ink, and a single brass detail on the cover. */
+:root {
+  --desk: #f3f0e9;
+  --leaf: #fdfbf6;
+  --inset: #eeece4;
+  --hairline: #d5d2c6;
+  --engraving: #d1ba86;
+  --quiet-ink: #576257;
+  --key-surface: #244537;
+  --key-ink: #fbf7ec;
+}
+:root[data-theme="dark"] {
+  --desk: #121815;
+  --leaf: #202823;
+  --inset: #18201c;
+  --hairline: #404b41;
+  --quiet-ink: #b6c1b5;
+  --key-surface: #bed5bd;
+  --key-ink: #14221a;
+}
+html[data-theme] body { background: var(--desk); }
+.shell .daily-masthead { border-color: var(--hairline); }
+.daily-masthead .theme-control select {
+  border-radius: 6px; border-color: var(--hairline);
+  background-color: var(--leaf); color: var(--heading-ink);
+}
+.view .poster {
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px #f3e6bd14, 0 8px 24px -18px #111b15a0;
+}
+.main .view .poster::after { opacity: calc(var(--orbit-opacity, .43) * .52); }
+.main .view .poster .poster-kicker > span:first-child::before {
+  width: 23px; height: 1px; background: var(--engraving);
+}
+.view .poster .poster-kicker { color: #e2cd9e; }
+.view .poster .glass-chip {
+  border-radius: 3px; border-color: #e5dbbf45; background: #101a1726;
+  backdrop-filter: none;
+}
+.view .poster .poster-sub { line-height: 1.6; color: #e0e4da; }
+.view .poster-stat b:not([class*="tone-"]), .view .sleep-metric b, .view .week-mini-number {
+  font-family: var(--serif); font-weight: 500; letter-spacing: -.035em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.view .poster-actions .btn { border-radius: 7px; }
+.view .poster-actions .poster-btn:not(.poster-btn-core):not(.is-done) {
+  color: #23352a; background: #eee8d8; border-color: #eee8d8; box-shadow: none;
+}
+.view .poster-actions .poster-btn:not(.poster-btn-core):not(.is-done):hover { background: #fffbef; }
+.view .week-atlas { border-top-color: #d9c5944d; }
+.week-atlas .atlas-day { border-radius: 5px; }
+.week-atlas .atlas-date b { font-variant-numeric: lining-nums tabular-nums; }
+
+/* Keep colour in the readings and marks rather than tinting every panel. */
+html[data-theme] .view :is(.card,.exercise-card,.weight-panel,.track-card),
+html[data-theme] .modal {
+  border: 1px solid var(--hairline); border-radius: 12px;
+  background: var(--leaf); color: var(--text);
+  box-shadow: 0 2px 5px -4px #10181055;
+}
+.view .card[class*="tint-"]::before, .view .card-ghost, .view .card-ghost-number { display: none; }
+.view .card .card-title svg {
+  width: 22px; height: 22px; padding: 2px; color: var(--binding); background: transparent;
+  stroke-width: 1.55;
+}
+.view .card .card-head, .view .weight-panel-head, .modal :is(.modal-head,.modal-foot) {
+  border-color: var(--hairline);
+}
+.view .card .card-head .card-hint, .view .field label, .modal .field label { color: var(--quiet-ink); }
+html[data-theme] :is(.view,.modal) :is(.input,.select) {
+  border-radius: 6px; background-color: var(--inset); border-color: var(--hairline);
+}
+html[data-theme] :is(.view,.modal) :is(.input,.select):focus {
+  border-color: var(--binding); box-shadow: 0 0 0 2px var(--accent-soft);
+}
+html[data-theme] :is(.card,.modal) .btn-primary {
+  background: var(--key-surface); color: var(--key-ink); border-color: var(--key-surface);
+}
+.view .card .btn,.modal .btn { border-radius: 7px; }
+.shell .sidebar .side-program { background: var(--leaf); border-color: var(--hairline); box-shadow: none; }
+.shell .nav-item.active { border-radius: 5px; }
+.shell .tabbar { box-shadow: 0 4px 18px -8px #17251b50; }
+@media (min-width:701px) {
+  .view .card .card-head { margin-bottom: 20px; padding-bottom: 15px; }
+  .main .view .poster { padding-inline: clamp(28px,3.5vw,48px); }
+}
+@media (hover:hover) {
+  html[data-theme] .view :is(a.exercise-card,button.exercise-card,.weight-teaser):hover {
+    border-color: var(--binding); box-shadow:none;
+  }
 }

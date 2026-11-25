@@ -2,9 +2,9 @@
  * Program weeks: the training program starts on a fixed date (default
  * 2026-11-23) and every week is a 7-day block from that day.
  */
-import { getState } from './store.js?v=20261124205838';
-import { isoDate, parseISO, addDays } from './ui.js?v=20261124205838';
-import { DEFAULT_PROGRAM_START } from './data-defaults.js?v=20261124205838';
+import { getState } from './store.js?v=20261125124145';
+import { isoDate, parseISO, addDays } from './ui.js?v=20261125124145';
+import { DEFAULT_PROGRAM_START } from './data-defaults.js?v=20261125124145';
 export { DEFAULT_PROGRAM_START };
 
 export function programStartKey() {
