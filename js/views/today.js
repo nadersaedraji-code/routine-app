@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261125124145';
+import { getState, update } from '../store.js?v=20261125202500';
 import {
   $,
   $$,
@@ -8,9 +8,7 @@ import {
   confirmDialog,
   emptyState,
   todayISO,
-  isoDate,
-  addDays,
-  parseISO,
+  sleepTimesForDate,
   fmtDate,
   fmtDuration,
   timeToMin,
@@ -19,7 +17,7 @@ import {
   activityRings,
   animateDash,
   badge,
-} from '../ui.js?v=20261125124145';
+} from '../ui.js?v=20261125202500';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -28,7 +26,7 @@ import {
   todayIndexInWeek,
   programStartsIn,
   programStartKey,
-} from '../program.js?v=20261125124145';
+} from '../program.js?v=20261125202500';
 
 function launchDial(startDate, upcoming) {
   return `<div class="poster-art launch-art">
@@ -90,7 +88,7 @@ export function render(root) {
     exercises: state.exerciseLogs.filter((l) => l.date === date),
     stretch: state.stretchLogs.some((l) => l.date === date),
     core: state.coreLogs.some((l) => l.date === date),
-    sleep: state.sleepLogs[date] || {},
+    sleep: sleepTimesForDate(state.sleepLogs, date),
   }));
   const exerciseCount = daysLogged.reduce((n, day) => n + day.exercises.length, 0);
   const previousDay = root.querySelector('[data-preview-day][aria-expanded="true"]')?.dataset.date;
@@ -99,7 +97,7 @@ export function render(root) {
   const coreDoneToday = state.coreLogs?.some((l) => l.date === today);
 
   const sleep = state.sleepLogs[today];
-  const tonightBed = state.sleepLogs[isoDate(addDays(parseISO(today), 1))]?.bed;
+  const tonightBed = sleepTimesForDate(state.sleepLogs, today).bed;
   const hasSleep = !!(sleep && (sleep.wake || sleep.bed));
   const firstDay = weekNum === 1 && todayIndex === 0;
   const launch = preStart || (firstDay && !hasSleep && !doneToday && !stretchedToday && !coreDoneToday);

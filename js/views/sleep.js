@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261125124145';
+import { getState, update } from '../store.js?v=20261125202500';
 import {
   $,
   $$,
@@ -13,6 +13,7 @@ import {
   todayISO,
   isoDate,
   addDays,
+  sleepTimesForDate,
   parseISO,
   timeToMin,
   minToTime,
@@ -20,11 +21,10 @@ import {
   axisToClock,
   deltaInfo,
   fmtDate,
-  relativeDay,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261125124145';
-import { sleepChart } from '../charts.js?v=20261125124145';
+} from '../ui.js?v=20261125202500';
+import { sleepChart } from '../charts.js?v=20261125202500';
 
 function avgClock(entries, key) {
   const vals = entries
@@ -39,6 +39,10 @@ function avgClock(entries, key) {
 
 function lastNDates(n) {
   return Array.from({ length: n }, (_, i) => isoDate(addDays(new Date(), -(n - 1 - i))));
+}
+
+function nightLabel(date, log) {
+  return fmtDate(log.bed ? isoDate(addDays(parseISO(date), -1)) : date, 'medium');
 }
 
 function statDeltaHtml(actual, target) {
@@ -56,12 +60,10 @@ export function render(root) {
   const state = getState();
   const dates30 = lastNDates(30);
   const entries7 = lastNDates(7)
-    .map((d) => (state.sleepLogs[d] ? { date: d, ...state.sleepLogs[d] } : null))
-    .filter(Boolean)
+    .map((d) => sleepTimesForDate(state.sleepLogs, d))
     .filter((e) => e.wake || e.bed);
   const entries30 = dates30
-    .map((d) => (state.sleepLogs[d] ? { date: d, ...state.sleepLogs[d] } : null))
-    .filter(Boolean)
+    .map((d) => sleepTimesForDate(state.sleepLogs, d))
     .filter((e) => e.wake || e.bed);
   const wakeAvg = avgClock(entries7, 'wake');
   const bedAvg = avgClock(entries7, 'bed');
@@ -156,11 +158,11 @@ export function render(root) {
     <div class="card tint-sleep ${entries30.length ? '' : 'chart-card is-empty'}">
       <div class="card-head">
         <div class="card-title sleep">${icon('chart')} Sleep pattern</div>
-        <span class="card-hint">Last 30 nights</span>
+        <span class="card-hint">Last 30 days</span>
       </div>
       ${
         entries30.length
-          ? `<div class="chart-wrap"><canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times over the last 30 nights. Dashed lines show your targets."></canvas></div>`
+          ? `<div class="chart-wrap"><canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times on their calendar dates over the last 30 days. Dashed lines show your targets."></canvas></div>`
           : emptyState({
               iconName: 'moon',
               title: 'No nights logged yet',
@@ -212,7 +214,7 @@ export function render(root) {
               <input class="input" type="time" id="sleep-bed" value="${escapeHtml(tonightLog.bed || '')}" required />
             </div>
           </div>
-          <p class="tiny faint mt-3">Tonight's bedtime joins tomorrow's wake-up. You can save either time first.</p>
+           <p class="tiny faint mt-3">Bedtime is shown on the date you choose. You can log the next morning’s wake-up separately.</p>
           <div class="row wrap mt-4">
             <button class="btn btn-primary" type="submit">${icon('check')} Save bedtime</button>
           </div>
@@ -249,13 +251,14 @@ export function render(root) {
     <div class="card">
       <div class="card-head">
         <div class="card-title data">${icon('calendar')} Sleep history</div>
-        <span class="card-hint">${sortedLogs.length} night${sortedLogs.length === 1 ? '' : 's'} logged · dated by wake-up</span>
+        <span class="card-hint">${sortedLogs.length} night${sortedLogs.length === 1 ? '' : 's'} logged</span>
       </div>
       ${
         sortedLogs.length
           ? `<div class="list">${sortedLogs
               .map((date) => {
-                const log = state.sleepLogs[date];
+                 const log = state.sleepLogs[date];
+                 const label = escapeHtml(nightLabel(date, log));
                 const wake = timeToMin(log.wake);
                 const bed = timeToMin(log.bed);
                 const wd = wake != null ? deltaInfo(wake, wakeTarget) : null;
@@ -264,19 +267,19 @@ export function render(root) {
                 <div class="list-item">
                   <button class="grow" data-edit="${date}" style="background:none;border:0;padding:0;text-align:left;color:inherit;cursor:pointer">
                     <div class="spread" style="justify-content:flex-start;gap:10px;flex-wrap:wrap">
-                      <div class="list-title">${date === tomorrow && log.bed && !log.wake ? 'Tonight → tomorrow' : escapeHtml(relativeDay(date))}</div>
+                       <div class="list-title">${log.bed ? 'Night of ' : 'Wake-up · '}${label}</div>
                       ${wd ? badge(wd.label, wd.tone) : ''}
                       ${bd ? badge(`bed ${bd.label}`, bd.tone) : ''}
                     </div>
                     <div class="list-sub">
-                      ${log.wake ? `Up ${escapeHtml(log.wake)}` : 'No wake time'}
-                      · ${log.bed ? `Bed ${escapeHtml(log.bed)}` : 'No bedtime'}
+                       ${log.bed ? `Bed ${escapeHtml(log.bed)} · ` : ''}
+                       ${log.wake ? `Up ${escapeHtml(log.wake)}${log.bed ? ` on ${escapeHtml(fmtDate(date, 'short'))}` : ''}` : 'Wake-up not logged'}
                       ${log.note ? ` · ${escapeHtml(log.note)}` : ''}
                     </div>
                   </button>
                   <div class="list-side">
-                    <button class="icon-btn" data-edit="${date}" aria-label="Edit ${date}">${icon('pencil')}</button>
-                    <button class="icon-btn danger" data-delete="${date}" aria-label="Delete ${date}">${icon('trash')}</button>
+                     <button class="icon-btn" data-edit="${date}" aria-label="Edit ${label}">${icon('pencil')}</button>
+                     <button class="icon-btn danger" data-delete="${date}" aria-label="Delete ${label}">${icon('trash')}</button>
                   </div>
                 </div>`;
               })
@@ -362,7 +365,7 @@ export function render(root) {
     update((s) => {
       s.sleepLogs[wakeDate] = { ...(s.sleepLogs[wakeDate] || {}), bed };
     });
-    toast('Bedtime saved');
+    toast(`Bedtime saved for ${fmtDate(bedDate, 'short')}`);
   });
 
   /* history actions */
@@ -371,7 +374,7 @@ export function render(root) {
       const date = btn.dataset.delete;
       const ok = await confirmDialog({
         title: 'Delete this night?',
-        message: `The sleep log for ${fmtDate(date, 'medium')} will be removed.`,
+        message: `The sleep log labeled ${nightLabel(date, getState().sleepLogs[date] || {})} will be removed.`,
         confirmText: 'Delete night',
       });
       if (!ok) return;
@@ -395,8 +398,7 @@ export function render(root) {
         return t == null ? null : clockToAxis(t);
       }),
       bed: dates30.map((d) => {
-        const log = state.sleepLogs[d];
-        const t = log && log.bed ? timeToMin(log.bed) : null;
+        const t = timeToMin(sleepTimesForDate(state.sleepLogs, d).bed);
         return t == null ? null : clockToAxis(t);
       }),
       wakeTarget: state.settings.wakeTarget,
@@ -407,16 +409,17 @@ export function render(root) {
 
 function openEditor(date) {
   const log = getState().sleepLogs[date] || { wake: '', bed: '', note: '' };
+  const label = nightLabel(date, log);
   const { root, close } = formModal({
-    title: `Edit ${fmtDate(date, 'medium')}`,
+    title: `Edit ${label}`,
     body: `
       <div class="form-grid">
         <div class="field">
-          <label>Wake time</label>
+          <label>Wake time · ${escapeHtml(fmtDate(date, 'short'))}</label>
           <input class="input" type="time" name="wake" value="${escapeHtml(log.wake || '')}" />
         </div>
         <div class="field">
-          <label>Bedtime</label>
+          <label>Bedtime · ${escapeHtml(fmtDate(isoDate(addDays(parseISO(date), -1)), 'short'))}</label>
           <input class="input" type="time" name="bed" value="${escapeHtml(log.bed || '')}" />
         </div>
       </div>
@@ -445,7 +448,7 @@ function openEditor(date) {
   $(`[data-del]`, root).addEventListener('click', async () => {
     const ok = await confirmDialog({
       title: 'Delete this night?',
-      message: `The sleep log for ${fmtDate(date, 'medium')} will be removed.`,
+      message: `The sleep log labeled ${label} will be removed.`,
       confirmText: 'Delete night',
     });
     if (!ok) return;

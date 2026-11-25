@@ -111,6 +111,12 @@ export function addDays(date, n) {
   return d;
 }
 
+/** Sleep records are paired by wake date, but each time belongs to its own day. */
+export function sleepTimesForDate(logs, date) {
+  const nextDay = isoDate(addDays(parseISO(date), 1));
+  return { wake: logs[date]?.wake, bed: logs[nextDay]?.bed };
+}
+
 export function startOfWeek(date = new Date()) {
   const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
   const offset = (d.getDay() + 6) % 7; // Monday = 0
