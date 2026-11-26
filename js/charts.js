@@ -8,7 +8,7 @@ import {
   timeToMin,
   fmtDate,
   round1,
-} from './ui.js?v=20261125202500';
+} from './ui.js?v=20261126165006';
 
 const FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';

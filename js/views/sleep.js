@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261125202500';
+import { getState, update } from '../store.js?v=20261126165006';
 import {
   $,
   $$,
@@ -23,8 +23,17 @@ import {
   fmtDate,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261125202500';
-import { sleepChart } from '../charts.js?v=20261125202500';
+} from '../ui.js?v=20261126165006';
+import { sleepChart } from '../charts.js?v=20261126165006';
+import { sleepStreak } from '../sleep-streak.js?v=20261126165006';
+
+const streakStatus = {
+  hit: ['check', 'Both targets met'],
+  miss: ['x', 'Outside the target window'],
+  partial: ['minus', 'Incomplete entry'],
+  missing: ['minus', 'No entry'],
+  pending: ['moon', 'Awaiting both times'],
+};
 
 function avgClock(entries, key) {
   const vals = entries
@@ -70,6 +79,7 @@ export function render(root) {
   const wakeTarget = timeToMin(state.settings.wakeTarget) ?? 7 * 60;
   const bedTarget = timeToMin(state.settings.bedTarget) ?? 23 * 60;
   const today = todayISO();
+  const streak = sleepStreak(state.sleepLogs, today, bedTarget, wakeTarget);
   const todayLog = state.sleepLogs[today] || {};
   const tomorrow = isoDate(addDays(parseISO(today), 1));
   const tonightLog = state.sleepLogs[tomorrow] || {};
@@ -153,6 +163,30 @@ export function render(root) {
     bedGoal
   )}</b><span>From bedtime target</span></div>
       </div>
+    </section>
+
+    <section class="card sleep-streak" aria-labelledby="sleep-streak-title">
+      <div class="card-head">
+        <h2 class="card-title sleep" id="sleep-streak-title">${icon('flame')} Sleep streak</h2>
+        <span class="card-hint">Within 15 min, early or late</span>
+      </div>
+      <div class="sleep-streak-summary">
+        <div class="sleep-streak-metric"><b>${streak.current}</b><span>Current streak</span></div>
+        <div class="sleep-streak-metric"><b>${streak.best}</b><span>Best streak</span></div>
+        <p>Both bedtime and the next wake-up must match your current targets. Each night is shown under its bedtime date.</p>
+      </div>
+      <ol class="sleep-streak-strip" aria-label="Last seven nights">
+        ${streak.recent.map(({ date, status }) => {
+          const [symbol, description] = streakStatus[status];
+          const label = `${fmtDate(date, 'medium')}: ${description}`;
+          return `<li class="sleep-streak-${status}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">
+            <span aria-hidden="true">${escapeHtml(fmtDate(date, 'day'))}</span>
+            <i aria-hidden="true">${icon(symbol)}</i>
+            <small aria-hidden="true">${Number(date.slice(-2))}</small>
+          </li>`;
+        }).join('')}
+      </ol>
+      <p class="sleep-streak-key">${icon('check')} Both targets met <span>·</span> ${icon('moon')} Awaiting both times</p>
     </section>
 
     <div class="card tint-sleep ${entries30.length ? '' : 'chart-card is-empty'}">

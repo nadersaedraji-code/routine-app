@@ -111,6 +111,48 @@
 .day-preview small {
   font: 650 10px/1.5 var(--font); letter-spacing: .15em; text-transform: uppercase; color: #e8c991;
 }
+
+/* Sleep streak: brass for completed nights and moon-blue for pending. */
+.sleep-streak-summary {
+  display: grid;
+  grid-template-columns: max-content max-content 1fr;
+  align-items: center;
+  gap: 12px 24px;
+}
+.sleep-streak-metric { display: grid; gap: 5px; }
+.sleep-streak-metric + .sleep-streak-metric { padding-inline-start: 20px; border-inline-start: 1px solid var(--hairline); }
+.sleep-streak-metric b { font: 500 36px/.95 var(--serif); color: var(--heading-ink); }
+.sleep-streak-metric span, .sleep-streak-summary p, .sleep-streak-key { color: var(--quiet-ink); font-size: 12px; }
+.sleep-streak-summary p { max-width: 38ch; }
+.sleep-streak-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sleep-streak-strip li {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  background: var(--inset);
+  border-radius: 6px;
+  color: var(--quiet-ink);
+  font-size: 11px;
+  padding-block: 8px;
+}
+.sleep-streak-strip i { display: grid; place-items: center; width: 20px; height: 20px; }
+.sleep-streak-strip svg, .sleep-streak-key svg { width: 14px; height: 14px; }
+.sleep-streak-strip .sleep-streak-hit { background: #eadfc4; color: #574219; }
+[data-theme="dark"] .sleep-streak-strip .sleep-streak-hit { background: #473b27; color: #f4d79c; }
+.sleep-streak-strip .sleep-streak-pending { outline: 1px dashed var(--binding); outline-offset: -1px; color: var(--binding); }
+.sleep-streak-key { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 10px; }
+.sleep-streak-key span { margin-inline: 4px; }
+@media (max-width: 560px) {
+  .sleep-streak-summary { grid-template-columns: max-content max-content; }
+  .sleep-streak-summary p { grid-column: 1 / -1; }
+}
 .view .poster-today button.pw-day { min-height: 44px; color: inherit; }
 .view .poster-today button.pw-day[aria-expanded="true"] { outline: 2px solid #f3d89c; outline-offset: -2px; }
 .day-preview:not([hidden]) {
