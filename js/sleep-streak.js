@@ -1,8 +1,8 @@
-import { addDays, deltaInfo, isoDate, parseISO, timeToMin } from './ui.js?v=20261126165006';
+import { addDays, deltaInfo, isoDate, parseISO, sleepTimesForDate, timeToMin } from './ui.js?v=20261127052525';
 
 export function sleepStreak(logs, today, bedTarget, wakeTarget) {
-  // Paired records are keyed by wake date, even though the night is named for bedtime.
-  function nightStatus(log) {
+  function dayStatus(date) {
+    const log = sleepTimesForDate(logs, date);
     const bed = timeToMin(log?.bed);
     const wake = timeToMin(log?.wake);
     if (bed == null || wake == null) return bed == null && wake == null ? 'missing' : 'partial';
@@ -10,14 +10,15 @@ export function sleepStreak(logs, today, bedTarget, wakeTarget) {
       ? 'hit' : 'miss';
   }
 
-  const todayStatus = nightStatus(logs[today]);
+  const todayStatus = dayStatus(today);
   const waitingForToday = todayStatus === 'missing' || todayStatus === 'partial';
   const lastCountedDate = waitingForToday ? isoDate(addDays(parseISO(today), -1)) : today;
   let run = 0;
   let best = 0;
   let previousDate = '';
+  // Every qualifying day has a wake-up stored under that date.
   for (const date of Object.keys(logs).filter((date) => date <= lastCountedDate).sort()) {
-    if (nightStatus(logs[date]) === 'hit') {
+    if (dayStatus(date) === 'hit') {
       const yesterday = isoDate(addDays(parseISO(date), -1));
       run = previousDate === yesterday ? run + 1 : 1;
       best = Math.max(best, run);
@@ -28,10 +29,10 @@ export function sleepStreak(logs, today, bedTarget, wakeTarget) {
   }
 
   const recent = Array.from({ length: 7 }, (_, i) => {
-    const wakeDate = addDays(parseISO(today), i - 6);
-    const status = nightStatus(logs[isoDate(wakeDate)]);
+    const date = isoDate(addDays(parseISO(today), i - 6));
+    const status = dayStatus(date);
     return {
-      date: isoDate(addDays(wakeDate, -1)),
+      date,
       status: i === 6 && waitingForToday ? 'pending' : status,
     };
   });

@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261126165006';
+import { getState, update } from '../store.js?v=20261127052525';
 import {
   $,
   $$,
@@ -23,9 +23,9 @@ import {
   fmtDate,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261126165006';
-import { sleepChart } from '../charts.js?v=20261126165006';
-import { sleepStreak } from '../sleep-streak.js?v=20261126165006';
+} from '../ui.js?v=20261127052525';
+import { sleepChart } from '../charts.js?v=20261127052525';
+import { sleepStreak } from '../sleep-streak.js?v=20261127052525';
 
 const streakStatus = {
   hit: ['check', 'Both targets met'],
@@ -173,9 +173,9 @@ export function render(root) {
       <div class="sleep-streak-summary">
         <div class="sleep-streak-metric"><b>${streak.current}</b><span>Current streak</span></div>
         <div class="sleep-streak-metric"><b>${streak.best}</b><span>Best streak</span></div>
-        <p>Both bedtime and the next wake-up must match your current targets. Each night is shown under its bedtime date.</p>
+        <p>Your morning wake-up and evening bedtime must both be within 15 minutes of your current targets on the same date.</p>
       </div>
-      <ol class="sleep-streak-strip" aria-label="Last seven nights">
+      <ol class="sleep-streak-strip" aria-label="Last seven days">
         ${streak.recent.map(({ date, status }) => {
           const [symbol, description] = streakStatus[status];
           const label = `${fmtDate(date, 'medium')}: ${description}`;
