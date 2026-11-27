@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261127054359';
+import { getState, update } from '../store.js?v=20261127054955';
 import {
   $,
   $$,
@@ -23,9 +23,9 @@ import {
   fmtDate,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261127054359';
-import { sleepChart } from '../charts.js?v=20261127054359';
-import { sleepStreak } from '../sleep-streak.js?v=20261127054359';
+} from '../ui.js?v=20261127054955';
+import { sleepChart } from '../charts.js?v=20261127054955';
+import { sleepStreak } from '../sleep-streak.js?v=20261127054955';
 
 const streakStatus = {
   hit: ['check', 'Both targets met'],
@@ -202,7 +202,10 @@ export function render(root) {
                <button type="button" class="btn btn-ghost btn-sm" id="sleep-zoom-reset">Reset</button>
                <label class="sleep-chart-pan" hidden>Move through dates <input type="range" id="sleep-chart-pan" min="0" value="0" step="1"></label>
              </div>
-             <div class="chart-wrap"><canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times on their calendar dates over the last 30 days. Tap a point to see its time. Dashed lines show your targets."></canvas></div>`
+             <div class="chart-wrap sleep-chart-wrap">
+               <canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times on their calendar dates over the last 30 days. Tap a point to see its time. Dashed lines show your targets."></canvas>
+               <output id="sleep-point-time" class="sleep-point-time" hidden></output>
+             </div>`
           : emptyState({
               iconName: 'moon',
               title: 'No nights logged yet',
@@ -444,8 +447,51 @@ export function render(root) {
       wakeTarget: state.settings.wakeTarget,
       bedTarget: state.settings.bedTarget,
     });
-    if (chart) bindChartZoom(root, chart, dates30);
+    if (chart) {
+      bindChartPointLabel(root, chart);
+      bindChartZoom(root, chart, dates30);
+    }
   }
+}
+
+function bindChartPointLabel(root, chart) {
+  const { canvas } = chart;
+  const label = $('#sleep-point-time', root);
+  chart.options.onResize = () => { label.hidden = true; };
+  function selectPoint(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * chart.width / rect.width;
+    const y = (event.clientY - rect.top) * chart.height / rect.height;
+    const { left, right } = chart.chartArea;
+    let closest = null;
+    let distance = 20;
+
+    // Only the two logged series can be selected, even near a target line.
+    for (const index of [0, 1]) {
+      if (!chart.isDatasetVisible(index)) continue;
+      chart.getDatasetMeta(index).data.forEach((point, day) => {
+        if (point.skip || day < chart.scales.x.min || day > chart.scales.x.max) return;
+        const pos = point.getCenterPoint();
+        if (pos.x < left - 1 || pos.x > right + 1) return;
+        const gap = Math.hypot(x - pos.x, y - pos.y);
+        if (gap >= distance) return;
+        distance = gap;
+        closest = { ...pos, time: chart.data.datasets[index].data[day] };
+      });
+    }
+    label.hidden = !closest;
+    if (!closest) return;
+
+    label.value = minToTime(axisToClock(closest.time));
+    const center = closest.x * rect.width / chart.width;
+    const halfWidth = label.offsetWidth / 2;
+    label.style.left = `${Math.max(halfWidth, Math.min(rect.width - halfWidth, center))}px`;
+    label.style.top = `${closest.y * rect.height / chart.height - 7}px`;
+  }
+  canvas.addEventListener('click', selectPoint);
+  canvas.addEventListener('pointerup', (event) => {
+    if (event.pointerType === 'touch') selectPoint(event);
+  });
 }
 
 function bindChartZoom(root, chart, dates) {
@@ -454,6 +500,7 @@ function bindChartZoom(root, chart, dates) {
   const reset = $('#sleep-zoom-reset', root);
   const pan = $('#sleep-chart-pan', root);
   const period = $('#sleep-chart-period', root);
+  const pointLabel = $('#sleep-point-time', root);
   const spans = [dates.length, 15, 8, 4];
   const lastLogged = dates.findLastIndex((_, i) => chart.data.datasets.some(
     (series, index) => index < 2 && series.data[i] != null
@@ -468,7 +515,7 @@ function bindChartZoom(root, chart, dates) {
     const end = start + span - 1;
     Object.assign(chart.options.scales.x, { min: start, max: end });
     chart.setActiveElements([]);
-    chart.tooltip?.setActiveElements([], { x: 0, y: 0 });
+    pointLabel.hidden = true;
     chart.update('none');
 
     zoomIn.disabled = level === spans.length - 1;

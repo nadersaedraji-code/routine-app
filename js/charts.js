@@ -8,7 +8,7 @@ import {
   timeToMin,
   fmtDate,
   round1,
-} from './ui.js?v=20261127054359';
+} from './ui.js?v=20261127054955';
 
 const FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -123,10 +123,6 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
   }
 
   const clockTick = (v) => minToTime(axisToClock(v));
-  const clockTip = (ctx) => {
-    const v = ctx.parsed.y;
-    return v == null ? '—' : minToTime(axisToClock(v));
-  };
 
   return mount(canvas, {
     type: 'line',
@@ -139,7 +135,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
           borderColor: ink('--chart-accent', ACCENT),
           backgroundColor: ink('--chart-accent', ACCENT),
           borderWidth: 2.4,
-          pointRadius: 2.5,
+          pointRadius: 3.5,
           pointHitRadius: 11,
           pointHoverRadius: 5,
           pointBackgroundColor: ink('--chart-accent', ACCENT),
@@ -153,10 +149,10 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
           borderColor: ink('--purple', PURPLE),
           backgroundColor: ink('--purple', PURPLE),
           borderWidth: 2.4,
-          pointRadius: 2.5,
+          pointRadius: 3.5,
           pointHitRadius: 11,
           pointHoverRadius: 5,
-          pointBackgroundColor: GREEN,
+          pointBackgroundColor: ink('--purple', PURPLE),
           tension: 0.35,
           spanGaps: true,
           order: 2,
@@ -189,8 +185,9 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
     },
     options: {
       responsive: true,
+      animation: false,
       interaction: { mode: 'nearest', axis: 'xy', intersect: true },
-      layout: { padding: { top: 4, right: 4 } },
+      layout: { padding: { top: 27, right: 8 } },
       scales: baseScales({
         y: {
           suggestedMin: lo,
@@ -205,18 +202,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
       }),
       plugins: {
         legend: { labels: { filter: (item) => !item.text.includes('goal') } },
-        tooltip: {
-          position: 'nearest',
-          filter: (item) => item.datasetIndex < 2,
-          displayColors: false,
-          padding: 6,
-          cornerRadius: 5,
-          bodyFont: { size: 11, weight: '600' },
-          callbacks: {
-            title: () => '',
-            label: clockTip,
-          },
-        },
+        tooltip: { enabled: false },
       },
     },
   });

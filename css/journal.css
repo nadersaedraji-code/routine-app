@@ -122,6 +122,20 @@
 .sleep-chart-tools .btn { min-width: 44px; min-height: 44px; }
 .sleep-chart-pan { flex: 1 1 176px; color: var(--quiet-ink); font-size: 12px; }
 .sleep-chart-pan input { flex: 1 0 72px; min-width: 0; accent-color: var(--binding); }
+.sleep-chart-wrap { position: relative; }
+.sleep-point-time {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  padding: 3px 5px;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  background: var(--leaf);
+  color: var(--heading-ink);
+  font: 650 11px/1.1 var(--font);
+  font-variant-numeric: tabular-nums;
+}
 
 /* Sleep streak: brass for completed nights and moon-blue for pending. */
 .sleep-streak-summary {
