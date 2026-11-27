@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261127054955';
+import { getState, update } from '../store.js?v=20261127055308';
 import {
   $,
   $$,
@@ -13,7 +13,7 @@ import {
   fmtDate,
   relativeDay,
   round1,
-} from '../ui.js?v=20261127054955';
+} from '../ui.js?v=20261127055308';
 import {
   currentWeekKey,
   weekDaysForKey,
@@ -21,14 +21,14 @@ import {
   shiftWeekKey,
   weekNumberForKey,
   programStartsIn,
-} from '../program.js?v=20261127054955';
-import { exerciseChart } from '../charts.js?v=20261127054955';
+} from '../program.js?v=20261127055308';
+import { exerciseChart } from '../charts.js?v=20261127055308';
 import {
   render as renderWeight,
   weightSummary,
   weightSparkline,
   formatWeight,
-} from './weight.js?v=20261127054955';
+} from './weight.js?v=20261127055308';
 
 const KINDS = {
   strength: { label: 'Strength', icon: 'dumbbell', cls: '' },

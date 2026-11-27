@@ -112,16 +112,6 @@
   font: 650 10px/1.5 var(--font); letter-spacing: .15em; text-transform: uppercase; color: #e8c991;
 }
 
-.sleep-chart-tools:not([hidden]), .sleep-chart-pan:not([hidden]) {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-.sleep-chart-tools { margin-bottom: 12px; }
-.sleep-chart-tools .btn { min-width: 44px; min-height: 44px; }
-.sleep-chart-pan { flex: 1 1 176px; color: var(--quiet-ink); font-size: 12px; }
-.sleep-chart-pan input { flex: 1 0 72px; min-width: 0; accent-color: var(--binding); }
 .sleep-chart-wrap { position: relative; }
 .sleep-point-time {
   position: absolute;

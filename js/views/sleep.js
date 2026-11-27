@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261127054955';
+import { getState, update } from '../store.js?v=20261127055308';
 import {
   $,
   $$,
@@ -23,9 +23,9 @@ import {
   fmtDate,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261127054955';
-import { sleepChart } from '../charts.js?v=20261127054955';
-import { sleepStreak } from '../sleep-streak.js?v=20261127054955';
+} from '../ui.js?v=20261127055308';
+import { sleepChart } from '../charts.js?v=20261127055308';
+import { sleepStreak } from '../sleep-streak.js?v=20261127055308';
 
 const streakStatus = {
   hit: ['check', 'Both targets met'],
@@ -192,17 +192,11 @@ export function render(root) {
     <div class="card tint-sleep ${entries30.length ? '' : 'chart-card is-empty'}">
       <div class="card-head">
         <div class="card-title sleep">${icon('chart')} Sleep pattern</div>
-        <span class="card-hint" id="sleep-chart-period">Last 30 days</span>
+        <span class="card-hint">Last 30 days</span>
       </div>
       ${
         entries30.length
-          ? `<div class="sleep-chart-tools" role="group" aria-label="Sleep chart zoom" hidden>
-               <button type="button" class="btn btn-secondary btn-sm" id="sleep-zoom-out" aria-label="Zoom out">−</button>
-               <button type="button" class="btn btn-secondary btn-sm" id="sleep-zoom-in" aria-label="Zoom in">${icon('plus')}</button>
-               <button type="button" class="btn btn-ghost btn-sm" id="sleep-zoom-reset">Reset</button>
-               <label class="sleep-chart-pan" hidden>Move through dates <input type="range" id="sleep-chart-pan" min="0" value="0" step="1"></label>
-             </div>
-             <div class="chart-wrap sleep-chart-wrap">
+          ? `<div class="chart-wrap sleep-chart-wrap">
                <canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times on their calendar dates over the last 30 days. Tap a point to see its time. Dashed lines show your targets."></canvas>
                <output id="sleep-point-time" class="sleep-point-time" hidden></output>
              </div>`
@@ -447,10 +441,7 @@ export function render(root) {
       wakeTarget: state.settings.wakeTarget,
       bedTarget: state.settings.bedTarget,
     });
-    if (chart) {
-      bindChartPointLabel(root, chart);
-      bindChartZoom(root, chart, dates30);
-    }
+    if (chart) bindChartPointLabel(root, chart);
   }
 }
 
@@ -470,7 +461,7 @@ function bindChartPointLabel(root, chart) {
     for (const index of [0, 1]) {
       if (!chart.isDatasetVisible(index)) continue;
       chart.getDatasetMeta(index).data.forEach((point, day) => {
-        if (point.skip || day < chart.scales.x.min || day > chart.scales.x.max) return;
+        if (point.skip) return;
         const pos = point.getCenterPoint();
         if (pos.x < left - 1 || pos.x > right + 1) return;
         const gap = Math.hypot(x - pos.x, y - pos.y);
@@ -492,54 +483,6 @@ function bindChartPointLabel(root, chart) {
   canvas.addEventListener('pointerup', (event) => {
     if (event.pointerType === 'touch') selectPoint(event);
   });
-}
-
-function bindChartZoom(root, chart, dates) {
-  const zoomIn = $('#sleep-zoom-in', root);
-  const zoomOut = $('#sleep-zoom-out', root);
-  const reset = $('#sleep-zoom-reset', root);
-  const pan = $('#sleep-chart-pan', root);
-  const period = $('#sleep-chart-period', root);
-  const pointLabel = $('#sleep-point-time', root);
-  const spans = [dates.length, 15, 8, 4];
-  const lastLogged = dates.findLastIndex((_, i) => chart.data.datasets.some(
-    (series, index) => index < 2 && series.data[i] != null
-  ));
-  let level = 0;
-  let start = 0;
-
-  function showRange(nextLevel, nextStart) {
-    level = nextLevel;
-    const span = spans[level];
-    start = Math.max(0, Math.min(nextStart, dates.length - span));
-    const end = start + span - 1;
-    Object.assign(chart.options.scales.x, { min: start, max: end });
-    chart.setActiveElements([]);
-    pointLabel.hidden = true;
-    chart.update('none');
-
-    zoomIn.disabled = level === spans.length - 1;
-    zoomOut.disabled = reset.disabled = level === 0;
-    pan.parentElement.hidden = level === 0;
-    pan.max = dates.length - span;
-    pan.value = start;
-    const range = `${fmtDate(dates[start], 'short')} – ${fmtDate(dates[end], 'short')}`;
-    pan.setAttribute('aria-valuetext', range);
-    period.textContent = level ? range : 'Last 30 days';
-  }
-
-  function zoom(step) {
-    const nextLevel = level + step;
-    const center = level ? start + (spans[level] - 1) / 2 : lastLogged;
-    showRange(nextLevel, Math.round(center - (spans[nextLevel] - 1) / 2));
-  }
-
-  zoomIn.addEventListener('click', () => zoom(1));
-  zoomOut.addEventListener('click', () => zoom(-1));
-  reset.addEventListener('click', () => showRange(0, 0));
-  pan.addEventListener('input', () => showRange(level, Number(pan.value)));
-  zoomOut.disabled = reset.disabled = true;
-  $('.sleep-chart-tools', root).hidden = false;
 }
 
 function openEditor(date) {
