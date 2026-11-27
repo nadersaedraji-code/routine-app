@@ -1,4 +1,4 @@
-import { getState, update } from '../store.js?v=20261127052525';
+import { getState, update } from '../store.js?v=20261127052935';
 import {
   $,
   $$,
@@ -23,9 +23,9 @@ import {
   fmtDate,
   mean,
   fmtDuration,
-} from '../ui.js?v=20261127052525';
-import { sleepChart } from '../charts.js?v=20261127052525';
-import { sleepStreak } from '../sleep-streak.js?v=20261127052525';
+} from '../ui.js?v=20261127052935';
+import { sleepChart } from '../charts.js?v=20261127052935';
+import { sleepStreak } from '../sleep-streak.js?v=20261127052935';
 
 const streakStatus = {
   hit: ['check', 'Both targets met'],
@@ -196,7 +196,7 @@ export function render(root) {
       </div>
       ${
         entries30.length
-          ? `<div class="chart-wrap"><canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times on their calendar dates over the last 30 days. Dashed lines show your targets."></canvas></div>`
+          ? `<div class="chart-wrap"><canvas id="sleep-chart" role="img" aria-label="Bedtimes and wake times on their calendar dates over the last 30 days. Tap a point to see its time. Dashed lines show your targets."></canvas></div>`
           : emptyState({
               iconName: 'moon',
               title: 'No nights logged yet',

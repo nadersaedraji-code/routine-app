@@ -8,7 +8,7 @@ import {
   timeToMin,
   fmtDate,
   round1,
-} from './ui.js?v=20261127052525';
+} from './ui.js?v=20261127052935';
 
 const FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -140,6 +140,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
           backgroundColor: ink('--chart-accent', ACCENT),
           borderWidth: 2.4,
           pointRadius: 2.5,
+          pointHitRadius: 11,
           pointHoverRadius: 5,
           pointBackgroundColor: ink('--chart-accent', ACCENT),
           tension: 0.35,
@@ -153,6 +154,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
           backgroundColor: ink('--purple', PURPLE),
           borderWidth: 2.4,
           pointRadius: 2.5,
+          pointHitRadius: 11,
           pointHoverRadius: 5,
           pointBackgroundColor: GREEN,
           tension: 0.35,
@@ -166,6 +168,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
           borderDash: [5, 5],
           borderWidth: 1.4,
           pointRadius: 0,
+          pointHitRadius: 0,
           pointHoverRadius: 0,
           tension: 0,
           order: 0,
@@ -177,6 +180,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
           borderDash: [5, 5],
           borderWidth: 1.4,
           pointRadius: 0,
+          pointHitRadius: 0,
           pointHoverRadius: 0,
           tension: 0,
           order: 0,
@@ -185,7 +189,7 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
     },
     options: {
       responsive: true,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: 'nearest', axis: 'xy', intersect: true },
       layout: { padding: { top: 4, right: 4 } },
       scales: baseScales({
         y: {
@@ -202,8 +206,15 @@ export function sleepChart(canvas, { dates, wake, bed, wakeTarget, bedTarget }) 
       plugins: {
         legend: { labels: { filter: (item) => !item.text.includes('goal') } },
         tooltip: {
+          position: 'nearest',
+          filter: (item) => item.datasetIndex < 2,
+          displayColors: false,
+          padding: 6,
+          cornerRadius: 5,
+          bodyFont: { size: 11, weight: '600' },
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${clockTip(ctx)}`,
+            title: () => '',
+            label: clockTip,
           },
         },
       },
